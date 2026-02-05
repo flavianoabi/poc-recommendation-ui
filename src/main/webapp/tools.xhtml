@@ -140,48 +140,39 @@
         .mobile-grid-container {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 2px;
-            background-color: #e0e0e0;
+            gap: 0;
+            background-color: transparent;
         }
         .mobile-grid-row {
-            background-color: #fff;
-            display: grid;
-            grid-template-rows: auto 1fr auto;
-            min-height: 150px;
+            background-color: transparent;
+            display: block;
+            width: 100%;
         }
         .grid-row-header {
-            padding: 8px 12px;
-            background-color: #f8f8f8;
-            border-bottom: 1px solid #e0e0e0;
-            font-size: 11px;
-            font-weight: 600;
-            color: #666;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            display: none;
         }
         .section-id-label {
-            color: #333;
+            display: none;
         }
         .grid-row-content {
-            padding: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 120px;
+            padding: 0;
+            display: block;
+            width: 100%;
+            min-height: 0;
         }
         .grid-section-image {
             width: 100%;
-            max-height: 200px;
             height: auto;
-            object-fit: contain;
-            border-radius: 4px;
+            object-fit: cover;
+            display: block;
+            border-radius: 0;
         }
         .grid-section-placeholder {
             width: 100%;
             min-height: 120px;
             background: linear-gradient(135deg, #f9f9f9 0%, #f0f0f0 100%);
-            border: 2px dashed #ddd;
-            border-radius: 4px;
+            border: none;
+            border-radius: 0;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -190,11 +181,7 @@
             text-align: center;
         }
         .grid-row-footer {
-            padding: 6px 12px;
-            background-color: #fafafa;
-            border-top: 1px solid #e0e0e0;
-            font-size: 10px;
-            color: #999;
+            display: none;
         }
     </style>
     <script type="text/javascript">
@@ -393,48 +380,32 @@
                             <div class="mobile-content">
                                 <div class="mobile-grid-container">
                                     <ui:repeat value="#{sectionManagementBean.sections}" var="section" id="mobileSectionsList">
-                            <div class="mobile-grid-row">
-                                <div class="grid-row-header">
-                                    <span class="section-id-label">#{section.id}</span>
-                                </div>
-                                <div class="grid-row-content">
-                                    <p:outputPanel rendered="#{sectionManagementBean.hasImage(section.id)}">
-                                        <img src="#{sectionManagementBean.getImageUrlForSection(section.id)}" 
-                                             alt="Section #{section.id}"
-                                             class="grid-section-image"
-                                             onclick="window.open('#{sectionManagementBean.getImageUrlForSection(section.id)}', '_blank')"
-                                             style="cursor: pointer; width: 100%; max-height: 200px; object-fit: contain; display: block;"
-                                             title="Click to view full size"
-                                             onerror="console.error('Image failed to load:', this.src); this.style.display='none'; var placeholder = this.nextElementSibling; if(placeholder) placeholder.style.display='flex';"/>
-                                        <div class="grid-section-placeholder" style="display: none;">
-                                            <div class="placeholder-content">
-                                                <i class="pi pi-image" style="font-size: 32px; color: #ccc; display: block; margin-bottom: 8px;"></i>
-                                                <span style="color: #999; font-size: 12px;">Image not found</span>
-                                                <br/><small style="color: #bbb;">URL: #{sectionManagementBean.getImageUrlForSection(section.id)}</small>
-                                            </div>
+                                        <div class="mobile-grid-row">
+                                            <p:outputPanel rendered="#{sectionManagementBean.hasImage(section.id)}">
+                                                <img src="#{sectionManagementBean.getImageUrlForSection(section.id)}" 
+                                                     alt="Section #{section.id}"
+                                                     class="grid-section-image"
+                                                     onclick="window.open('#{sectionManagementBean.getImageUrlForSection(section.id)}', '_blank')"
+                                                     style="cursor: pointer; width: 100%; height: auto; object-fit: cover; display: block;"
+                                                     title="Click to view full size"
+                                                     onerror="console.error('Image failed to load:', this.src); this.style.display='none'; var placeholder = this.nextElementSibling; if(placeholder) placeholder.style.display='flex';"/>
+                                                <div class="grid-section-placeholder" style="display: none;">
+                                                    <div class="placeholder-content">
+                                                        <i class="pi pi-image" style="font-size: 32px; color: #ccc; display: block; margin-bottom: 8px;"></i>
+                                                        <span style="color: #999; font-size: 12px;">Image not found</span>
+                                                    </div>
+                                                </div>
+                                            </p:outputPanel>
+                                            
+                                            <p:outputPanel rendered="#{not sectionManagementBean.hasImage(section.id)}">
+                                                <div class="grid-section-placeholder">
+                                                    <div class="placeholder-content">
+                                                        <i class="pi pi-image" style="font-size: 32px; color: #ccc; display: block; margin-bottom: 8px;"></i>
+                                                        <span style="color: #999; font-size: 12px;">No image</span>
+                                                    </div>
+                                                </div>
+                                            </p:outputPanel>
                                         </div>
-                                    </p:outputPanel>
-                                    
-                                    <p:outputPanel rendered="#{not sectionManagementBean.hasImage(section.id)}">
-                                        <div class="grid-section-placeholder">
-                                            <div class="placeholder-content">
-                                                <i class="pi pi-image" style="font-size: 32px; color: #ccc; display: block; margin-bottom: 8px;"></i>
-                                                <span style="color: #999; font-size: 12px;">No image for #{section.id}</span>
-                                            </div>
-                                        </div>
-                                    </p:outputPanel>
-                                </div>
-                                <div class="grid-row-footer">
-                                    <small style="color: #999;">
-                                        <p:outputPanel rendered="#{not empty section.layoutType}">
-                                            Layout: #{section.layoutType}
-                                        </p:outputPanel>
-                                        <p:outputPanel rendered="#{not empty section.componentType}">
-                                            <span rendered="#{not empty section.layoutType}"> | </span>Component: #{section.componentType}
-                                        </p:outputPanel>
-                                    </small>
-                                </div>
-                            </div>
                                     </ui:repeat>
                                 </div>
                             </div>

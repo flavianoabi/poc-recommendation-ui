@@ -88,13 +88,21 @@
                             <p:commandLink value="View" 
                                          onclick="window.open('#{imageUploadBean.getImageUrl(image.fileName)}', '_blank')"
                                          icon="pi pi-external-link"
-                                         style="margin-right: 5px;"/>
-                            <p:commandLink value="Delete" 
-                                         action="#{imageUploadBean.deleteImage(image.fileName)}"
+                                         style="margin-right: 5px;"
+                                         title="View image in new window"/>
+                            <p:commandButton value="Delete" 
+                                         action="#{imageUploadBean.deleteImageAction(image.fileName)}"
                                          update=":allImagesForm:allImagesList :uploadForm:messages"
+                                         process="@this"
                                          icon="pi pi-trash"
-                                         styleClass="ui-link-danger"
-                                         onclick="return confirm('Are you sure you want to delete this image?');"/>
+                                         styleClass="ui-button-danger"
+                                         title="Delete this image"
+                                         data-file-name="#{image.fileName}"
+                                         data-original-name="#{image.originalName}"
+                                         data-section="#{image.section}"
+                                         data-size="#{image.sizeFormatted}"
+                                         data-date="#{image.uploadDateFormatted}"
+                                         onclick="return confirmDeleteAction(this);"/>
                         </p:column>
                     </p:dataTable>
                     <p style="margin-top: 10px; font-size: 12px; color: #666;">
@@ -112,6 +120,25 @@
                 </p:panel>
         </p:panel>
     </h:form>
+
+    <script type="text/javascript">
+        function confirmDeleteAction(button) {
+            var fileName = button.getAttribute('data-file-name') || '';
+            var originalName = button.getAttribute('data-original-name') || '';
+            var section = button.getAttribute('data-section') || '';
+            var size = button.getAttribute('data-size') || '';
+            var date = button.getAttribute('data-date') || '';
+            
+            var sectionDisplay = (!section || section === 'null' || section === '' || section === 'None') ? 'None' : section;
+            var message = 'Are you sure you want to delete "' + originalName + '"?\n\n' +
+                         'Section: ' + sectionDisplay + '\n' +
+                         'Size: ' + size + '\n' +
+                         'Uploaded: ' + date + '\n\n' +
+                         'This action cannot be undone.';
+            
+            return confirm(message);
+        }
+    </script>
     
 </h:body>
 

@@ -4,6 +4,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
+import jakarta.faces.event.ActionEvent;
 import jakarta.inject.Named;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.file.UploadedFile;
@@ -40,6 +41,7 @@ public class ImageUploadBean implements Serializable {
     private UploadedFile file;
     private UploadedFiles files;
     private String section; // Section name for the uploaded image
+    private String fileNameToDelete; // File name to delete (set before delete action)
     private List<ImageInfo> uploadedImages; // Session-scoped: current session uploads
     private List<ImageInfo> allImages; // All images from directory
 
@@ -116,6 +118,9 @@ public class ImageUploadBean implements Serializable {
 
     /**
      * Generate unique filename to avoid conflicts
+     * Format: section&originalname&timestamp&uuid.ext (if section provided)
+     * Format: originalname&timestamp&uuid.ext (if no section)
+     * Note: timestamp format is yyyyMMdd_HHmmss (keeps internal underscore)
      */
     private String generateUniqueFileName(String originalFileName, String section) {
         String extension = "";
@@ -127,9 +132,9 @@ public class ImageUploadBean implements Serializable {
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
         String uniqueId = UUID.randomUUID().toString().substring(0, 8);
         
-        // Prefix with section if provided: section_originalname_timestamp_uuid.ext
-        String sectionPrefix = (section != null && !section.trim().isEmpty()) ? section.trim() + "_" : "";
-        return sectionPrefix + baseName + "_" + timestamp + "_" + uniqueId + extension;
+        // Prefix with section if provided: section&originalname&timestamp&uuid.ext
+        String sectionPrefix = (section != null && !section.trim().isEmpty()) ? section.trim() + "&" : "";
+        return sectionPrefix + baseName + "&" + timestamp + "&" + uniqueId + extension;
     }
 
     public void uploadSingle(FileUploadEvent event) {
@@ -428,8 +433,9 @@ public class ImageUploadBean implements Serializable {
 
     /**
      * Extract section from filename pattern
-     * Pattern: section_originalname_timestamp_uuid.extension (if section provided)
-     * Pattern: originalname_timestamp_uuid.extension (if no section)
+     * Pattern: section&originalname&timestamp&uuid.extension (if section provided)
+     * Pattern: originalname&timestamp&uuid.extension (if no section)
+     * Note: timestamp format is yyyyMMdd_HHmmss (keeps internal underscore)
      */
     private String extractSection(String fileName) {
         // Find timestamp pattern: yyyyMMdd_HHmmss (8digits_6digits)
@@ -438,15 +444,15 @@ public class ImageUploadBean implements Serializable {
         if (matcher.find()) {
             int timestampStart = matcher.start();
             String beforeTimestamp = fileName.substring(0, timestampStart);
-            // Remove trailing underscore
-            if (beforeTimestamp.endsWith("_")) {
+            // Remove trailing ampersand
+            if (beforeTimestamp.endsWith("&")) {
                 beforeTimestamp = beforeTimestamp.substring(0, beforeTimestamp.length() - 1);
             }
-            // Check if there's a section prefix (underscore before timestamp)
-            int firstUnderscore = beforeTimestamp.indexOf('_');
-            if (firstUnderscore > 0) {
-                // Pattern: section_originalname, extract section
-                return beforeTimestamp.substring(0, firstUnderscore);
+            // Check if there's a section prefix (ampersand before timestamp)
+            int firstAmpersand = beforeTimestamp.indexOf('&');
+            if (firstAmpersand > 0) {
+                // Pattern: section&originalname, extract section
+                return beforeTimestamp.substring(0, firstAmpersand);
             }
         }
         return "";
@@ -454,8 +460,9 @@ public class ImageUploadBean implements Serializable {
     
     /**
      * Extract original filename from the unique filename pattern
-     * Pattern: section_originalname_timestamp_uuid.extension (if section provided)
-     * Pattern: originalname_timestamp_uuid.extension (if no section)
+     * Pattern: section&originalname&timestamp&uuid.extension (if section provided)
+     * Pattern: originalname&timestamp&uuid.extension (if no section)
+     * Note: timestamp format is yyyyMMdd_HHmmss (keeps internal underscore)
      */
     private String extractOriginalName(String fileName) {
         // Find timestamp pattern: yyyyMMdd_HHmmss
@@ -464,16 +471,16 @@ public class ImageUploadBean implements Serializable {
         if (matcher.find()) {
             int timestampStart = matcher.start();
             String beforeTimestamp = fileName.substring(0, timestampStart);
-            // Remove trailing underscore
-            if (beforeTimestamp.endsWith("_")) {
+            // Remove trailing ampersand
+            if (beforeTimestamp.endsWith("&")) {
                 beforeTimestamp = beforeTimestamp.substring(0, beforeTimestamp.length() - 1);
             }
             // Check if there's a section prefix
-            int firstUnderscore = beforeTimestamp.indexOf('_');
+            int firstAmpersand = beforeTimestamp.indexOf('&');
             String originalName;
-            if (firstUnderscore > 0) {
-                // Pattern: section_originalname, extract original name
-                originalName = beforeTimestamp.substring(firstUnderscore + 1);
+            if (firstAmpersand > 0) {
+                // Pattern: section&originalname, extract original name
+                originalName = beforeTimestamp.substring(firstAmpersand + 1);
             } else {
                 // Pattern: originalname (no section)
                 originalName = beforeTimestamp;
@@ -488,22 +495,124 @@ public class ImageUploadBean implements Serializable {
     }
 
     /**
-     * Delete an image file
+     * Delete action method - called from JSF action binding
+     * Uses fileNameToDelete property set by setter
+     */
+    public void deleteImage() {
+        if (fileNameToDelete != null && !fileNameToDelete.trim().isEmpty()) {
+            deleteImage(fileNameToDelete);
+            fileNameToDelete = null; // Clear after deletion
+        } else {
+            System.err.println("ERROR: fileNameToDelete is null or empty!");
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", 
+                            "File name is required to delete an image."));
+        }
+    }
+
+    /**
+     * Delete action listener method - called from JSF actionListener binding
+     * Uses fileNameToDelete property set by f:setPropertyActionListener
+     */
+    public void deleteImageWithParam(ActionEvent event) {
+        deleteImage();
+    }
+
+    /**
+     * Delete action method that accepts fileName parameter - for use in JSF action binding
+     * Returns null to stay on the same page
+     */
+    public String deleteImageAction(String fileName) {
+        deleteImage(fileName);
+        return null; // Stay on the same page
+    }
+
+    /**
+     * Delete an image file by fileName
      */
     public void deleteImage(String fileName) {
+        System.out.println("========================================");
+        System.out.println("=== deleteImage() CALLED ===");
+        System.out.println("File name: " + fileName);
+        System.out.println("Timestamp: " + java.time.LocalDateTime.now());
+        System.out.println("========================================");
+        
+        if (fileName == null || fileName.trim().isEmpty()) {
+            System.err.println("ERROR: File name is null or empty!");
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", 
+                            "File name is required to delete an image."));
+            return;
+        }
+        
         try {
             Path filePath = getUploadPath().resolve(fileName);
+            System.out.println("Attempting to delete file: " + filePath);
+            System.out.println("File exists: " + Files.exists(filePath));
+            
             if (Files.exists(filePath)) {
+                // Check if it's a regular file (not a directory)
+                if (!Files.isRegularFile(filePath)) {
+                    System.err.println("ERROR: Path is not a regular file: " + filePath);
+                    FacesContext.getCurrentInstance().addMessage(null,
+                            new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", 
+                                    "Cannot delete: Path is not a file."));
+                    return;
+                }
+                
+                // Get file info before deletion for better error messages
+                String originalName = fileName;
+                try {
+                    // Try to extract original name from filename
+                    originalName = extractOriginalName(fileName);
+                } catch (Exception e) {
+                    System.out.println("Could not extract original name, using filename: " + e.getMessage());
+                }
+                
+                // Delete the file
                 Files.delete(filePath);
-                loadAllImages(); // Refresh list
+                System.out.println("File deleted successfully: " + filePath);
+                
+                // Remove from session list if present
+                uploadedImages.removeIf(img -> img.getFileName().equals(fileName));
+                
+                // Refresh the all images list
+                loadAllImages();
+                
                 FacesContext.getCurrentInstance().addMessage(null,
                         new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", 
-                                "Image '" + fileName + "' deleted successfully!"));
+                                "Image '" + originalName + "' deleted successfully!"));
+            } else {
+                System.err.println("WARNING: File does not exist: " + filePath);
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_WARN, "Warning", 
+                                "Image file not found. It may have already been deleted."));
+                // Still refresh the list in case it's a stale reference
+                loadAllImages();
             }
+        } catch (java.nio.file.NoSuchFileException e) {
+            System.err.println("File not found: " + e.getMessage());
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_WARN, "Warning", 
+                            "Image file not found. It may have already been deleted."));
+            loadAllImages();
+        } catch (java.nio.file.AccessDeniedException e) {
+            System.err.println("Access denied: " + e.getMessage());
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", 
+                            "Access denied. Cannot delete the image file. Please check file permissions."));
         } catch (IOException e) {
+            System.err.println("IO error deleting file: " + e.getMessage());
+            e.printStackTrace();
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", 
                             "Failed to delete image: " + e.getMessage()));
+        } catch (Exception e) {
+            System.err.println("Unexpected error deleting file: " + e.getMessage());
+            e.printStackTrace();
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", 
+                            "Unexpected error while deleting image: " + e.getMessage()));
         }
     }
 
@@ -622,6 +731,14 @@ public class ImageUploadBean implements Serializable {
 
     public void setSection(String section) {
         this.section = section;
+    }
+
+    public String getFileNameToDelete() {
+        return fileNameToDelete;
+    }
+
+    public void setFileNameToDelete(String fileNameToDelete) {
+        this.fileNameToDelete = fileNameToDelete;
     }
 
     public String getUploadDirectory() {
