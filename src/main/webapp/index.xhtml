@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+<h:head>
+    <title>POC Recommendation UI</title>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <style>
+        body {
+            position: relative;
+            min-height: 100vh;
+            background-color: #ffffff;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('/images/bees-background.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            opacity: 0.2;
+            z-index: -1;
+        }
+        
+        .page-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        .menu-sidebar {
+            width: 15%;
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            background-color: rgba(255, 255, 255, 0.95);
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+        
+        .content-area {
+            width: 85%;
+            margin-left: 15%;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .ui-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+        
+        .menu-panel {
+            margin: 0;
+            height: 100%;
+            border-radius: 0;
+        }
+        
+        .menu-panel .ui-panel-content {
+            padding: 0;
+        }
+        
+        .menu-panel .ui-panel-titlebar {
+            cursor: pointer;
+            user-select: none;
+            padding: 15px;
+        }
+        
+        .menu-panel .ui-panel-titlebar:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+        
+        .vertical-menu {
+            width: 100%;
+            border: none;
+        }
+        
+        .vertical-menu .ui-menu-list {
+            width: 100%;
+        }
+        
+        .vertical-menu .ui-menuitem {
+            width: 100%;
+        }
+    </style>
+</h:head>
+
+<h:body>
+    <div class="page-layout">
+        <!-- Left Sidebar Menu (15% width) -->
+        <div class="menu-sidebar">
+            <h:form id="menuForm">
+                <!-- Home Menu (outside panels) -->
+                <p:tieredMenu model="#{menuBean.homeModel}" styleClass="vertical-menu" style="margin-bottom: 10px;"/>
+                
+                <!-- Settings Menu Panel -->
+                <p:panel id="settingsPanel" 
+                        widgetVar="settingsPanelWidget"
+                        toggleable="true"
+                        collapsed="false"
+                        styleClass="menu-panel"
+                        header="Settings"
+                        toggleSpeed="300">
+                    <p:tieredMenu model="#{menuBean.model}" styleClass="vertical-menu"/>
+                </p:panel>
+                
+                <!-- Sections Menu Panel -->
+                <p:panel id="sectionsPanel" 
+                        widgetVar="sectionsPanelWidget"
+                        toggleable="true"
+                        collapsed="false"
+                        styleClass="menu-panel"
+                        header="Sections"
+                        toggleSpeed="300">
+                    <p:tieredMenu model="#{menuBean.sectionsModel}" styleClass="vertical-menu"/>
+                </p:panel>
+            </h:form>
+        </div>
+        
+        <!-- Main Content Area (85% width) -->
+        <div class="content-area">
+            <div class="ui-container">
+                <p:outputPanel id="contentPanel" style="width: 100%;">
+                    <ui:include src="#{menuBean.currentPage}"/>
+                </p:outputPanel>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Fallback: Set background via JavaScript if CSS doesn't work
+        (function() {
+            var bgOverlay = document.createElement('div');
+            bgOverlay.style.position = 'fixed';
+            bgOverlay.style.top = '0';
+            bgOverlay.style.left = '0';
+            bgOverlay.style.width = '100%';
+            bgOverlay.style.height = '100%';
+            bgOverlay.style.backgroundImage = "url('#{facesContext.externalContext.requestContextPath}/images/bees-background.png')";
+            bgOverlay.style.backgroundSize = "cover";
+            bgOverlay.style.backgroundPosition = "center";
+            bgOverlay.style.backgroundRepeat = "no-repeat";
+            bgOverlay.style.opacity = "0.2";
+            bgOverlay.style.zIndex = "-1";
+            document.body.appendChild(bgOverlay);
+        })();
+    </script>
+</h:body>
+
+</html>
