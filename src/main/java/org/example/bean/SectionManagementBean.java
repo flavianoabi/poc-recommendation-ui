@@ -53,35 +53,11 @@ public class SectionManagementBean implements Serializable {
             if (rootNode.isArray()) {
                 System.out.println("Root node is an array with " + rootNode.size() + " elements");
                 for (JsonNode recommendationNode : rootNode) {
-                    JsonNode itemsNode = recommendationNode.get("items");
-                    if (itemsNode != null && itemsNode.isArray()) {
-                        System.out.println("Found items array with " + itemsNode.size() + " items");
-                        for (JsonNode itemNode : itemsNode) {
-                            JsonNode additionalProperties = itemNode.get("additionalProperties");
-                            if (additionalProperties != null) {
-                                JsonNode sectionsNode = additionalProperties.get("sections");
-                                if (sectionsNode != null && sectionsNode.isArray()) {
-                                    System.out.println("Found sections array with " + sectionsNode.size() + " sections");
-                                    for (JsonNode sectionNode : sectionsNode) {
-                                        SectionInfo sectionInfo = parseSection(sectionNode);
-                                        if (sectionInfo != null) {
-                                            sections.add(sectionInfo);
-                                            System.out.println("Added section: " + sectionInfo.getId());
-                                        }
-                                    }
-                                } else {
-                                    System.out.println("Sections node is null or not an array");
-                                }
-                            } else {
-                                System.out.println("AdditionalProperties is null");
-                            }
-                        }
-                    } else {
-                        System.out.println("Items node is null or not an array");
-                    }
+                    parseRecommendationNode(recommendationNode);
                 }
             } else {
-                System.out.println("Root node is not an array");
+                System.out.println("Root node is a single object, parsing as single recommendation");
+                parseRecommendationNode(rootNode);
             }
             
             System.out.println("Total sections parsed: " + sections.size());
@@ -94,6 +70,35 @@ public class SectionManagementBean implements Serializable {
         } catch (Exception e) {
             System.err.println("Error parsing payload: " + e.getMessage());
             e.printStackTrace();
+        }
+    }
+    
+    private void parseRecommendationNode(JsonNode recommendationNode) {
+        JsonNode itemsNode = recommendationNode.get("items");
+        if (itemsNode != null && itemsNode.isArray()) {
+            System.out.println("Found items array with " + itemsNode.size() + " items");
+            for (JsonNode itemNode : itemsNode) {
+                JsonNode additionalProperties = itemNode.get("additionalProperties");
+                if (additionalProperties != null) {
+                    JsonNode sectionsNode = additionalProperties.get("sections");
+                    if (sectionsNode != null && sectionsNode.isArray()) {
+                        System.out.println("Found sections array with " + sectionsNode.size() + " sections");
+                        for (JsonNode sectionNode : sectionsNode) {
+                            SectionInfo sectionInfo = parseSection(sectionNode);
+                            if (sectionInfo != null) {
+                                sections.add(sectionInfo);
+                                System.out.println("Added section: " + sectionInfo.getId());
+                            }
+                        }
+                    } else {
+                        System.out.println("Sections node is null or not an array");
+                    }
+                } else {
+                    System.out.println("AdditionalProperties is null");
+                }
+            }
+        } else {
+            System.out.println("Items node is null or not an array");
         }
     }
     
@@ -226,6 +231,143 @@ public class SectionManagementBean implements Serializable {
     
     public List<SectionInfo> getSections() {
         return sections;
+    }
+    
+    /**
+     * Returns sections ordered with main_header_background first, if it exists.
+     */
+    public List<SectionInfo> getOrderedSections() {
+        if (sections == null || sections.isEmpty()) {
+            return sections;
+        }
+        
+        List<SectionInfo> ordered = new ArrayList<>();
+        SectionInfo headerBackground = null;
+        
+        // Find and separate main_header_background
+        for (SectionInfo section : sections) {
+            if ("main_header_background".equals(section.getId())) {
+                headerBackground = section;
+            } else {
+                ordered.add(section);
+            }
+        }
+        
+        // Put main_header_background first if found
+        if (headerBackground != null) {
+            ordered.add(0, headerBackground);
+        }
+        
+        return ordered;
+    }
+    
+    /**
+     * Returns the main_header_background section if it exists.
+     */
+    public SectionInfo getHeaderBackgroundSection() {
+        if (sections == null) {
+            return null;
+        }
+        return sections.stream()
+                .filter(s -> "main_header_background".equals(s.getId()))
+                .findFirst()
+                .orElse(null);
+    }
+    
+    /**
+     * Returns the overlay sections (next 2 sections after main_header_background).
+     * These sections should be rendered on top of the header background.
+     * Returns a list with up to 2 sections (accounts and search).
+     * Partners and subsequent sections are rendered as normal sections below.
+     */
+    public List<SectionInfo> getOverlaySections() {
+        List<SectionInfo> ordered = getOrderedSections();
+        if (ordered == null || ordered.isEmpty()) {
+            return new ArrayList<>();
+        }
+        
+        // Find index of main_header_background
+        int headerIndex = -1;
+        for (int i = 0; i < ordered.size(); i++) {
+            if ("main_header_background".equals(ordered.get(i).getId())) {
+                headerIndex = i;
+                break;
+            }
+        }
+        
+        // If no header background found, return empty list
+        if (headerIndex == -1) {
+            return new ArrayList<>();
+        }
+        
+        // Get next 2 sections (accounts and search) to render as overlay
+        // Partners and subsequent sections will be rendered as normal sections
+        List<SectionInfo> overlaySections = new ArrayList<>();
+        int startIndex = headerIndex + 1;
+        int endIndex = Math.min(startIndex + 2, ordered.size()); // Get up to 2 sections
+        
+        for (int i = startIndex; i < endIndex; i++) {
+            overlaySections.add(ordered.get(i));
+        }
+        
+        return overlaySections;
+    }
+    
+    /**
+     * Checks if a section should be rendered as half (deprecated - no longer used).
+     * All overlay sections are now rendered fully.
+     */
+    public boolean isHalfOverlaySection(String sectionId) {
+        // No longer using half sections - all overlay sections are rendered fully
+        return false;
+    }
+    
+    /**
+     * Returns sections that should be rendered normally (not as overlay).
+     */
+    public List<SectionInfo> getNormalSections() {
+        List<SectionInfo> ordered = getOrderedSections();
+        List<SectionInfo> overlaySections = getOverlaySections();
+        
+        if (ordered == null || ordered.isEmpty()) {
+            return new ArrayList<>();
+        }
+        
+        List<SectionInfo> normalSections = new ArrayList<>();
+        boolean skipHeader = false;
+        
+        for (SectionInfo section : ordered) {
+            if ("main_header_background".equals(section.getId())) {
+                // Skip header background - it's rendered separately as background
+                skipHeader = true;
+                continue;
+            }
+            
+            // Skip overlay sections - they're rendered separately
+            boolean isOverlay = overlaySections.stream()
+                    .anyMatch(overlay -> overlay.getId().equals(section.getId()));
+            
+            if (!isOverlay) {
+                normalSections.add(section);
+            }
+        }
+        
+        return normalSections;
+    }
+    
+    /**
+     * Checks if a section is the main_header_background.
+     */
+    public boolean isHeaderBackground(String sectionId) {
+        return "main_header_background".equals(sectionId);
+    }
+    
+    /**
+     * Checks if a section should be rendered as overlay.
+     */
+    public boolean isOverlaySection(String sectionId) {
+        return getOverlaySections().stream()
+                .anyMatch(s -> s.getId().equals(sectionId));
     }
     
     public void setSections(List<SectionInfo> sections) {

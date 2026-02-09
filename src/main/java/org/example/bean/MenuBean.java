@@ -51,13 +51,23 @@ public class MenuBean implements Serializable {
         
         // Tools menu item
         DefaultMenuItem toolsItem = new DefaultMenuItem();
-        toolsItem.setValue("Tools");
+        toolsItem.setValue("Parse");
         toolsItem.setIcon("pi pi-wrench");
         toolsItem.setCommand("#{menuBean.loadPage('/tools.xhtml')}");
         toolsItem.setUpdate(":contentPanel");
         toolsItem.setAjax(true);
         toolsItem.setProcess("@this");
         sectionsModel.getElements().add(toolsItem);
+        
+        // Drag and Drop menu item
+        DefaultMenuItem dragDropItem = new DefaultMenuItem();
+        dragDropItem.setValue("Drag and Drop");
+        dragDropItem.setIcon("pi pi-arrows-alt");
+        dragDropItem.setCommand("#{menuBean.loadPage('/dragdrop.xhtml')}");
+        dragDropItem.setUpdate(":contentPanel");
+        dragDropItem.setAjax(true);
+        dragDropItem.setProcess("@this");
+        sectionsModel.getElements().add(dragDropItem);
     }
 
     public String loadPage(String page) {
