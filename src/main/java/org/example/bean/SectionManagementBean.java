@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Named("sectionManagementBean")
@@ -24,6 +25,9 @@ public class SectionManagementBean implements Serializable {
     private String recommendationsPayload;
     private List<SectionInfo> sections;
     private Map<String, String> sectionImageMap; // Maps section ID to image filename
+
+    private String sectionsLibrarySectionId;
+    private String sectionsLibraryImageGroup;
     
     @PostConstruct
     public void init() {
@@ -384,6 +388,57 @@ public class SectionManagementBean implements Serializable {
     
     public Map<String, String> getSectionImageMap() {
         return sectionImageMap;
+    }
+
+    public String getSectionsLibrarySectionId() {
+        return sectionsLibrarySectionId;
+    }
+
+    public void setSectionsLibrarySectionId(String sectionsLibrarySectionId) {
+        this.sectionsLibrarySectionId = sectionsLibrarySectionId;
+    }
+
+    public String getSectionsLibraryImageGroup() {
+        return sectionsLibraryImageGroup;
+    }
+
+    public void setSectionsLibraryImageGroup(String sectionsLibraryImageGroup) {
+        this.sectionsLibraryImageGroup = sectionsLibraryImageGroup;
+    }
+
+    public List<String> getUploadedImageGroups() {
+        if (imageUploadBean == null) {
+            FacesContext facesContext = FacesContext.getCurrentInstance();
+            if (facesContext != null) {
+                imageUploadBean = facesContext.getApplication()
+                        .evaluateExpressionGet(facesContext, "#{imageUploadBean}", ImageUploadBean.class);
+            }
+        }
+
+        if (imageUploadBean == null) {
+            return List.of();
+        }
+
+        return imageUploadBean.getAllImages().stream()
+                .map(ImageUploadBean.ImageInfo::getFileName)
+                .map(this::extractImageGroupName)
+                .filter(name -> name != null && !name.isBlank())
+                .distinct()
+                .sorted()
+                .collect(Collectors.toList());
+    }
+
+    private String extractImageGroupName(String fileName) {
+        if (fileName == null || fileName.isBlank()) {
+            return null;
+        }
+
+        int ampersandIndex = fileName.indexOf('&');
+        if (ampersandIndex <= 0) {
+            return fileName;
+        }
+
+        return fileName.substring(0, ampersandIndex);
     }
     
     public static class SectionInfo implements Serializable {

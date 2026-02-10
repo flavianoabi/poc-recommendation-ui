@@ -200,7 +200,18 @@
 </h:head>
 
 <h:body>
-  <p:panel header="Section Management" style="margin: 20px;">
+  <p:panel header="Section Management"
+           widgetVar="sectionManagementPanel"
+           toggleable="true"
+           collapsed="false"
+           style="margin: 20px;">
+    <f:facet name="actions">
+      <p:commandButton type="button"
+                       icon="pi pi-arrows-v"
+                       title="Collapse/Expand"
+                       styleClass="ui-button-flat ui-button-secondary"
+                       onclick="PF('sectionManagementPanel').toggle(); return false;"/>
+    </f:facet>
     <h2>Dynamic Section Customization</h2>
     <p>Upload recommendations payload to dynamically display sections with their associated images.</p>
 
@@ -222,7 +233,19 @@
     </h:form>
   </p:panel>
 
-  <p:panel header="Dynamic Sections Display" id="sectionsDisplay" style="margin: 20px;">
+  <p:panel header="Dynamic Sections Display"
+           id="sectionsDisplay"
+           widgetVar="dynamicSectionsDisplayPanel"
+           toggleable="true"
+           collapsed="true"
+           style="margin: 20px;">
+    <f:facet name="actions">
+      <p:commandButton type="button"
+                       icon="pi pi-arrows-v"
+                       title="Collapse/Expand"
+                       styleClass="ui-button-flat ui-button-secondary"
+                       onclick="PF('dynamicSectionsDisplayPanel').toggle(); return false;"/>
+    </f:facet>
     <p:outputPanel rendered="#{empty sectionManagementBean.sections}">
       <p style="text-align: center; color: #999; padding: 40px;">
         <i class="pi pi-info-circle" style="font-size: 48px; display: block; margin-bottom: 10px;"></i>
@@ -280,7 +303,7 @@
           <p:commandButton value="Upload Image for this Section"
                            icon="pi pi-upload"
                            style="margin-top: 10px;"
-                           onclick="setSectionIdForUpload('#{section.id}', 'uploadForm:sectionInput'); PF('uploadDialog_#{section.id.replaceAll('[^a-zA-Z0-9]', '_')}').show();"
+                           onclick="setSectionIdForUpload('#{section.id}', 'uploadForm:sectionInput'); PF('uploadDialog_#{section.id.replaceAll(&quot;[^a-zA-Z0-9]&quot;, &quot;_&quot;)}').show();"
                            rendered="#{not sectionManagementBean.hasImage(section.id)}"/>
 
           <p:commandButton value="Refresh Mappings"
@@ -291,7 +314,7 @@
         </div>
 
         <p:dialog header="Upload Image for Section: #{section.id}"
-                  widgetVar="uploadDialog_#{section.id.replaceAll('[^a-zA-Z0-9]', '_')}"
+                  widgetVar="uploadDialog_#{section.id.replaceAll(&quot;[^a-zA-Z0-9]&quot;, &quot;_&quot;)}"
                   modal="true"
                   resizable="false"
                   style="width: 500px;">
@@ -315,15 +338,84 @@
                           fileUploadListener="#{imageUploadBean.uploadSingle}"
                           allowTypes="/(\.|\/)(gif|jpe?g|png)$/"
                           onstart="setSectionIdForUpload('#{section.id}', 'uploadForm:sectionInput');"
-                          oncomplete="if(args &amp;&amp; !args.validationFailed) { setTimeout(function() { #{sectionManagementBean.refreshSectionMappings()}; PF('sectionsDisplay').update(); PF('appPreview').update(); }, 300); PF('uploadDialog_#{section.id.replaceAll('[^a-zA-Z0-9]', '_')}').hide(); }">
+                          oncomplete="PF('uploadDialog_#{section.id.replaceAll(&quot;[^a-zA-Z0-9]&quot;, &quot;_&quot;)}').hide();">
             </p:fileUpload>
             <p:messages id="messages"/>
             <p:commandButton value="Close"
-                             onclick="PF('uploadDialog_#{section.id.replaceAll('[^a-zA-Z0-9]', '_')}').hide();"
+                             onclick="PF('uploadDialog_#{section.id.replaceAll(&quot;[^a-zA-Z0-9]&quot;, &quot;_&quot;)}').hide();"
                              style="margin-top: 10px;"/>
           </h:form>
         </p:dialog>
       </p:dataList>
+    </p:outputPanel>
+  </p:panel>
+
+  <p:panel header="Sections library"
+           id="sectionsLibrary"
+           widgetVar="sectionsLibraryPanel"
+           toggleable="true"
+           collapsed="true"
+           style="margin: 20px;">
+    <f:facet name="actions">
+      <p:commandButton type="button"
+                       icon="pi pi-arrows-v"
+                       title="Collapse/Expand"
+                       styleClass="ui-button-flat ui-button-secondary"
+                       onclick="PF('sectionsLibraryPanel').toggle(); return false;"/>
+    </f:facet>
+
+    <h:form id="sectionsLibraryForm">
+      <p:panelGrid columns="2" style="margin-bottom: 15px; width: 100%;">
+        <p:outputLabel value="Section ID:" for="sectionsLibrarySectionId"/>
+        <p:inputText id="sectionsLibrarySectionId"
+                     value="#{sectionManagementBean.sectionsLibrarySectionId}"
+                     style="width: 100%;"
+                     placeholder="Type a section id..."/>
+
+        <p:outputLabel value="Uploaded images:" for="sectionsLibraryImageGroup"/>
+        <p:selectOneMenu id="sectionsLibraryImageGroup"
+                         value="#{sectionManagementBean.sectionsLibraryImageGroup}"
+                         style="width: 100%;">
+          <f:selectItem itemLabel="Select an image group..." itemValue="" noSelectionOption="true"/>
+          <f:selectItems value="#{sectionManagementBean.uploadedImageGroups}"/>
+        </p:selectOneMenu>
+      </p:panelGrid>
+    </h:form>
+
+    <p:outputPanel rendered="#{empty sectionManagementBean.sections}">
+      <p style="text-align: center; color: #999; padding: 30px;">
+        No sections available. Parse a payload to populate the library.
+      </p>
+    </p:outputPanel>
+
+    <p:outputPanel rendered="#{sectionManagementBean.sections != null and not empty sectionManagementBean.sections}">
+      <p:dataTable value="#{sectionManagementBean.allSectionIds}"
+                   var="sectionId"
+                   style="width: 100%;"
+                   paginator="true"
+                   rows="10"
+                   emptyMessage="No sections available.">
+        <p:column headerText="Section ID">
+          <h:outputText value="#{sectionId}"/>
+        </p:column>
+
+        <p:column headerText="Image">
+          <p:outputPanel rendered="#{sectionManagementBean.hasImage(sectionId)}">
+            <h:outputText value="Yes"/>
+          </p:outputPanel>
+          <p:outputPanel rendered="#{not sectionManagementBean.hasImage(sectionId)}">
+            <h:outputText value="No"/>
+          </p:outputPanel>
+        </p:column>
+
+        <p:column headerText="Actions" style="width: 120px;">
+          <p:commandButton type="button"
+                           icon="pi pi-copy"
+                           title="Copy section id"
+                           styleClass="ui-button-flat ui-button-secondary"
+                           onclick="navigator.clipboard.writeText('#{sectionId}'); return false;"/>
+        </p:column>
+      </p:dataTable>
     </p:outputPanel>
   </p:panel>
 
