@@ -33,6 +33,110 @@
         margin: 10px 0;
     }
     
+    /* Partner stores section container */
+    .partner-stores-container {
+        background-color: transparent;
+        padding: 15px 0;
+        margin: 10px 0;
+    }
+    
+    .partner-stores-header {
+        font-weight: bold;
+        font-size: 18px;
+        color: #333;
+        margin-bottom: 15px;
+    }
+    
+    .partner-logos-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        align-items: center;
+    }
+    
+    /* Individual partner logo circle */
+    .partner-logo-circle {
+        position: relative;
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        flex-shrink: 0;
+    }
+    
+    /* Ambev logo - blue circle */
+    .partner-logo-circle.ambev {
+        background-color: #0066CC;
+    }
+    
+    .partner-logo-circle.ambev::after {
+        content: 'ambev';
+        color: white;
+        font-size: 14px;
+        font-weight: bold;
+        font-family: Arial, sans-serif;
+        text-transform: lowercase;
+    }
+    
+    /* Nestlé logo - dark blue/teal circle */
+    .partner-logo-circle.nestle {
+        background-color: #0066A0;
+    }
+    
+    .partner-logo-circle.nestle::after {
+        content: 'Nestlé';
+        color: white;
+        font-size: 12px;
+        font-weight: bold;
+        font-family: Arial, sans-serif;
+    }
+    
+    /* Haleon logo - black circle */
+    .partner-logo-circle.haleon {
+        background-color: #000000;
+    }
+    
+    .partner-logo-circle.haleon::after {
+        content: 'HALEON';
+        color: white;
+        font-size: 11px;
+        font-weight: bold;
+        font-family: Arial, sans-serif;
+        letter-spacing: 0.5px;
+    }
+    
+    /* Vila Nova logo - dark teal/green circle */
+    .partner-logo-circle.vilanova {
+        background-color: #1B5E5E;
+    }
+    
+    .partner-logo-circle.vilanova::after {
+        content: 'VILA NOVA';
+        color: white;
+        font-size: 9px;
+        font-weight: bold;
+        font-family: Arial, sans-serif;
+        text-align: center;
+        line-height: 1.2;
+        padding: 0 5px;
+    }
+    
+    /* Generic partner logo - gray circle */
+    .partner-logo-circle.generic {
+        background-color: #666666;
+    }
+    
+    .partner-logo-circle.generic::after {
+        content: 'LOGO';
+        color: white;
+        font-size: 10px;
+        font-weight: bold;
+        font-family: Arial, sans-serif;
+    }
+    
     /* Circular blue logo for header background sections in Dynamic Sections Display */
     .section-card-header-background-css {
         position: relative;
@@ -643,10 +747,17 @@
             Section ID: #{section.id}
           </div>
 
-          <!-- Show CSS circular blue element for partners section -->
+          <!-- Show Partner stores section with CSS circular logos -->
           <p:outputPanel rendered="#{section.id == 'partners'}">
-            <div class="section-card-header-background-css">
-              <!-- Circular blue logo will be rendered via CSS ::before and ::after pseudo-elements -->
+            <div class="partner-stores-container">
+              <div class="partner-stores-header">Partner stores</div>
+              <div class="partner-logos-row">
+                <ui:repeat value="#{sectionManagementBean.getPartnerLogosList(section)}" var="logoIndex" varStatus="status">
+                  <div class="partner-logo-circle #{sectionManagementBean.getPartnerLogoClass(logoIndex)}">
+                    <!-- Logo text will be rendered via CSS ::after pseudo-element -->
+                  </div>
+                </ui:repeat>
+              </div>
             </div>
           </p:outputPanel>
 
@@ -936,20 +1047,36 @@
               <p:column headerText="Section" style="width: 200px; min-width: 150px;">
                 <h:outputText value="#{sectionItem.sectionName}" style="word-wrap: break-word; white-space: normal;"/>
               </p:column>
-              
+
               <!-- Radio buttons for header_background sections: choose between Image or CSS -->
-              <p:column headerText="Header Background" style="width: 180px;" 
-                       rendered="#{sectionManagementBean.isHeaderBackgroundSection(sectionItem.sectionName)}">
+              <p:column headerText="Header Background" style="width: 180px;"
+                        rendered="#{sectionManagementBean.isHeaderBackgroundSection(sectionItem.sectionName)}">
                 <h:panelGroup layout="block" style="display: flex; flex-direction: row; gap: 15px; align-items: center;">
-                  <p:selectOneRadio id="headerBgType#{sectionItem.index}" 
+                  <p:selectOneRadio id="headerBgType#{sectionItem.index}"
                                    value="#{sectionItem.useCssForHeaderBackground}">
                     <f:selectItem itemLabel="Image" itemValue="#{false}"/>
                     <f:selectItem itemLabel="CSS" itemValue="#{true}"/>
-                    <p:ajax event="change" 
-                           listener="#{sectionManagementBean.onHeaderBackgroundTypeChange(sectionItem.index - 1)}"
-                           update=":sectionsGridForm:sectionsGridTable :appPreview"
-                           process="@this"
-                           oncomplete="updateHeaderBackgroundHeight();"/>
+                    <p:ajax event="change"
+                             listener="#{sectionManagementBean.onHeaderBackgroundTypeChange(sectionItem.index - 1)}"
+                             update=":sectionsGridForm:sectionsGridTable :appPreview"
+                             process="@this"
+                             oncomplete="updateHeaderBackgroundHeight();"/>
+                  </p:selectOneRadio>
+                </h:panelGroup>
+              </p:column>
+
+              <!-- Radio buttons for partners sections: choose between CSS logos or Image -->
+              <p:column headerText="Display Type" style="width: 180px;"
+                        rendered="#{sectionManagementBean.isPartnersSection(sectionItem.sectionName)}">
+                <h:panelGroup layout="block" style="display: flex; flex-direction: row; gap: 15px; align-items: center;">
+                  <p:selectOneRadio id="partnersType#{sectionItem.index}"
+                                   value="#{sectionItem.useCssForPartners}">
+                    <f:selectItem itemLabel="Image" itemValue="#{false}"/>
+                    <f:selectItem itemLabel="CSS" itemValue="#{true}"/>
+                    <p:ajax event="change"
+                             listener="#{sectionManagementBean.onPartnersTypeChange(sectionItem.index - 1)}"
+                             update=":sectionsGridForm:sectionsGridTable :appPreview"
+                             process="@this"/>
                   </p:selectOneRadio>
                 </h:panelGroup>
               </p:column>
@@ -1095,24 +1222,66 @@
                     <p:outputPanel rendered="#{not empty sectionManagementBean.previewImageUrls}">
                       <ui:repeat value="#{sectionManagementBean.previewImageUrls}" var="previewUrl" varStatus="status" id="previewImages">
                         <p:outputPanel rendered="#{not sectionManagementBean.isHeaderBackgroundSection(sectionManagementBean.orderedPreviewSections[status.index].sectionName)}">
-                          <div class="mobile-grid-row regular-image-layer" 
-                               draggable="true"
-                               data-index="#{status.index}"
-                               ondragstart="handlePreviewImageDragStart(event, this)"
-                               ondragover="handlePreviewImageDragOver(event, this)"
-                               ondrop="handlePreviewImageDrop(event, this)"
-                               ondragend="handlePreviewImageDragEnd(event)"
-                               style="cursor: move; position: relative; z-index: 10;">
-                            <h:panelGroup id="previewImageItem#{status.index}" layout="block" style="position: relative; width: 100%;">
-                              <img src="#{previewUrl}"
-                                   alt="Preview image"
-                                   class="grid-section-image"
-                                   style="width: 100%; height: auto; object-fit: cover; display: block; pointer-events: none;"
-                                   title="Drag to reorder"
-                                   draggable="false"
-                                   onerror="console.error('Failed to load image:', this.src);"/>
-                            </h:panelGroup>
-                          </div>
+                          <!-- Partners section: Show CSS logos or image based on selection -->
+                          <p:outputPanel rendered="#{sectionManagementBean.isPartnersSection(sectionManagementBean.orderedPreviewSections[status.index].sectionName)}">
+                            <!-- Show CSS logos if CSS option is selected -->
+                            <p:outputPanel rendered="#{sectionManagementBean.orderedPreviewSections[status.index].useCssForPartners}">
+                              <div class="mobile-grid-row regular-image-layer" style="position: relative; z-index: 10; padding: 15px;">
+                                <div class="partner-stores-container" style="background-color: transparent;">
+                                  <div class="partner-stores-header" style="font-size: 16px; margin-bottom: 10px;">Partner stores</div>
+                                  <div class="partner-logos-row">
+                                    <ui:repeat value="#{sectionManagementBean.getPartnerLogosList(sectionManagementBean.getSectionById(sectionManagementBean.orderedPreviewSections[status.index].sectionName))}" var="logoIndex" varStatus="logoStatus">
+                                      <div class="partner-logo-circle #{sectionManagementBean.getPartnerLogoClass(logoIndex)}">
+                                        <!-- Logo text will be rendered via CSS ::after pseudo-element -->
+                                      </div>
+                                    </ui:repeat>
+                                  </div>
+                                </div>
+                              </div>
+                            </p:outputPanel>
+                            <!-- Show uploaded image if Image option is selected -->
+                            <p:outputPanel rendered="#{not sectionManagementBean.orderedPreviewSections[status.index].useCssForPartners}">
+                              <div class="mobile-grid-row regular-image-layer" 
+                                   draggable="true"
+                                   data-index="#{status.index}"
+                                   ondragstart="handlePreviewImageDragStart(event, this)"
+                                   ondragover="handlePreviewImageDragOver(event, this)"
+                                   ondrop="handlePreviewImageDrop(event, this)"
+                                   ondragend="handlePreviewImageDragEnd(event)"
+                                   style="cursor: move; position: relative; z-index: 10;">
+                                <h:panelGroup id="previewImageItemPartners#{status.index}" layout="block" style="position: relative; width: 100%;">
+                                  <img src="#{previewUrl}"
+                                       alt="Preview image"
+                                       class="grid-section-image"
+                                       style="width: 100%; height: auto; object-fit: cover; display: block; pointer-events: none;"
+                                       title="Drag to reorder"
+                                       draggable="false"
+                                       onerror="console.error('Failed to load image:', this.src);"/>
+                                </h:panelGroup>
+                              </div>
+                            </p:outputPanel>
+                          </p:outputPanel>
+                          <!-- Other regular sections: Show image normally -->
+                          <p:outputPanel rendered="#{not sectionManagementBean.isPartnersSection(sectionManagementBean.orderedPreviewSections[status.index].sectionName)}">
+                            <div class="mobile-grid-row regular-image-layer" 
+                                 draggable="true"
+                                 data-index="#{status.index}"
+                                 ondragstart="handlePreviewImageDragStart(event, this)"
+                                 ondragover="handlePreviewImageDragOver(event, this)"
+                                 ondrop="handlePreviewImageDrop(event, this)"
+                                 ondragend="handlePreviewImageDragEnd(event)"
+                                 style="cursor: move; position: relative; z-index: 10;">
+                              <h:panelGroup id="previewImageItemRegular#{status.index}" layout="block" style="position: relative; width: 100%;">
+                                <img src="#{previewUrl}"
+                                     alt="Preview image"
+                                     class="grid-section-image"
+                                     style="width: 100%; height: auto; object-fit: cover; display: block; pointer-events: none;"
+                                     title="Drag to reorder"
+                                     draggable="false"
+                                     onerror="console.error('Failed to load image:', this.src);"/>
+                              </h:panelGroup>
+                            </div>
+                          </p:outputPanel>
                         </p:outputPanel>
                       </ui:repeat>
                     </p:outputPanel>

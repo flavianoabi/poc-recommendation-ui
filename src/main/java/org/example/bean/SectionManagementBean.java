@@ -332,6 +332,56 @@ public class SectionManagementBean implements Serializable {
     }
     
     /**
+     * Gets the number of partner logos to display based on columns value.
+     * If columns is a decimal like "4.5", it will be rounded to the nearest integer.
+     */
+    public int getPartnerLogosCount(SectionInfo section) {
+        if (section == null || section.getColumns() == null || section.getColumns().trim().isEmpty()) {
+            return 5; // Default to 5 logos
+        }
+        try {
+            double columnsValue = Double.parseDouble(section.getColumns().trim());
+            return (int) Math.round(columnsValue);
+        } catch (NumberFormatException e) {
+            return 5; // Default to 5 logos if parsing fails
+        }
+    }
+    
+    /**
+     * Gets a list of integers from 0 to count-1 for iterating over partner logos.
+     */
+    public List<Integer> getPartnerLogosList(SectionInfo section) {
+        int count = getPartnerLogosCount(section);
+        List<Integer> list = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            list.add(i);
+        }
+        return list;
+    }
+    
+    /**
+     * Gets a SectionInfo by section ID.
+     */
+    public SectionInfo getSectionById(String sectionId) {
+        if (sectionId == null || sections == null) {
+            return null;
+        }
+        return sections.stream()
+                .filter(s -> sectionId.equals(s.getId()))
+                .findFirst()
+                .orElse(null);
+    }
+    
+    /**
+     * Gets the logo class name for a specific index.
+     * Returns different logo styles: ambev, nestle, haleon, vilanova, generic
+     */
+    public String getPartnerLogoClass(int index) {
+        String[] logoClasses = {"ambev", "nestle", "haleon", "vilanova", "generic"};
+        return logoClasses[index % logoClasses.length];
+    }
+    
+    /**
      * Returns sections ordered with main_header_background first, if it exists.
      */
     public List<SectionInfo> getOrderedSections() {
@@ -463,6 +513,26 @@ public class SectionManagementBean implements Serializable {
      */
     public boolean isHeaderBackgroundSection(String sectionName) {
         return sectionName != null && sectionName.endsWith("header_background");
+    }
+    
+    /**
+     * Checks if a section is the partners section.
+     */
+    public boolean isPartnersSection(String sectionName) {
+        return sectionName != null && sectionName.equals("partners");
+    }
+    
+    /**
+     * Handles change event when user switches between CSS and Image for partners section.
+     */
+    public void onPartnersTypeChange(int index) {
+        if (index >= 0 && index < orderedPreviewSections.size()) {
+            PreviewSectionItem item = orderedPreviewSections.get(index);
+            System.out.println("Partners type changed for section: " + item.getSectionName() +
+                             ", Use CSS: " + item.isUseCssForPartners());
+            // Force update of preview URLs to reflect the change
+            // The AJAX update will refresh the mobile preview
+        }
     }
     
     /**
@@ -947,6 +1017,7 @@ public class SectionManagementBean implements Serializable {
         private String fileName;
         private String sectionName;
         private boolean useCssForHeaderBackground = false; // New property: true = use CSS, false = use image
+        private boolean useCssForPartners = false; // New property: true = use CSS logos, false = use uploaded image
         
         public PreviewSectionItem(String fileName, String sectionName) {
             this.fileName = fileName;
@@ -974,6 +1045,10 @@ public class SectionManagementBean implements Serializable {
             return sectionName;
         }
         
+        public void setSectionName(String sectionName) {
+            this.sectionName = sectionName;
+        }
+        
         public boolean isUseCssForHeaderBackground() {
             return useCssForHeaderBackground;
         }
@@ -982,8 +1057,12 @@ public class SectionManagementBean implements Serializable {
             this.useCssForHeaderBackground = useCssForHeaderBackground;
         }
         
-        public void setSectionName(String sectionName) {
-            this.sectionName = sectionName;
+        public boolean isUseCssForPartners() {
+            return useCssForPartners;
+        }
+        
+        public void setUseCssForPartners(boolean useCssForPartners) {
+            this.useCssForPartners = useCssForPartners;
         }
     }
     
