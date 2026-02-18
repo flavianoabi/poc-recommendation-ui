@@ -16,6 +16,9 @@
         padding: 15px;
         margin: 10px 0;
         background-color: #f9f9f9;
+        min-width: 1200px;
+        width: 100%;
+        max-width: 1600px;
     }
     .section-header {
         font-weight: bold;
@@ -29,10 +32,113 @@
         border-radius: 4px;
         margin: 10px 0;
     }
+    
+    /* Circular blue logo for header background sections in Dynamic Sections Display */
+    .section-card-header-background-css {
+        position: relative;
+        min-height: 150px;
+        background-color: #fffe05; /* Yellow background */
+        border-radius: 4px;
+        padding: 20px;
+        margin: 10px 0;
+    }
+    
+    /* Circular blue circle */
+    .section-card-header-background-css::before {
+        content: '';
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        width: 60px;
+        height: 60px;
+        background-color: #0066CC; /* Blue color similar to ambev logo */
+        border-radius: 50%; /* Makes it circular */
+        display: block;
+        z-index: 2;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+    }
+    
+    /* Text inside the circle */
+    .section-card-header-background-css::after {
+        content: 'ambev';
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 14px;
+        font-weight: bold;
+        font-family: Arial, sans-serif;
+        text-transform: lowercase;
+        z-index: 3;
+        pointer-events: none;
+        line-height: 60px; /* Center text vertically */
+    }
     .section-properties {
         font-size: 12px;
         color: #666;
         margin-top: 10px;
+    }
+    .label-column {
+        width: 200px !important;
+        min-width: 200px !important;
+        max-width: 200px !important;
+        font-weight: bold;
+        color: #555;
+        text-align: left !important;
+        vertical-align: middle;
+        padding-right: 15px !important;
+        padding-top: 8px;
+        padding-left: 0 !important;
+        padding-bottom: 8px !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+    .value-column {
+        text-align: left;
+        vertical-align: middle;
+        padding-left: 10px;
+        padding-top: 8px;
+        padding-right: 0;
+        padding-bottom: 8px !important;
+    }
+    /* Ensure panelGrid cells align properly - target all possible PrimeFaces classes */
+    .section-card .ui-panelgrid td.label-column,
+    .section-card .ui-panelgrid .ui-panelgrid-cell.label-column,
+    .section-card table.ui-panelgrid td.label-column,
+    .section-card table.ui-panelgrid .ui-panelgrid-cell.label-column {
+        width: 200px !important;
+        min-width: 200px !important;
+        max-width: 200px !important;
+        text-align: left !important;
+        padding-left: 0 !important;
+        padding-right: 15px !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+    .section-card .ui-panelgrid td.label-column label,
+    .section-card .ui-panelgrid .ui-panelgrid-cell.label-column label,
+    .section-card .ui-panelgrid td.label-column .ui-outputlabel,
+    .section-card .ui-panelgrid .ui-panelgrid-cell.label-column .ui-outputlabel,
+    .section-card table.ui-panelgrid td.label-column label,
+    .section-card table.ui-panelgrid td.label-column .ui-outputlabel {
+        text-align: left !important;
+        display: block !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        width: 100% !important;
+    }
+    /* Force alignment for specific labels */
+    .section-card .ui-panelgrid td.label-column:first-child,
+    .section-card table.ui-panelgrid td.label-column:first-child {
+        padding-left: 0 !important;
+        margin-left: 0 !important;
     }
     .no-image-placeholder {
         width: 200px;
@@ -138,15 +244,13 @@
         border-radius: 2px;
     }
     .mobile-grid-container {
-        display: grid;
-        grid-template-columns: 1fr;
+        display: flex;
+        flex-direction: column;
         gap: 0;
         background-color: transparent;
-    }
-    .mobile-grid-row {
-        background-color: transparent;
-        display: block;
-        width: 100%;
+        position: relative;
+        align-items: stretch; /* Ensure items stretch full width */
+        justify-content: flex-start; /* Start from top */
     }
     .grid-row-header {
         display: none;
@@ -185,7 +289,132 @@
     }
     /* Draggable images */
     .mobile-grid-row {
+        background-color: transparent;
+        display: block;
+        width: 100%;
         position: relative;
+        transition: opacity 0.2s ease;
+        flex-shrink: 0; /* Prevent shrinking in flex container */
+    }
+    /* Header background layer - applies to any section ending with "_header_background" */
+    .mobile-grid-row.header-background-layer {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1;
+        width: 100%;
+        min-height: 200px; /* Minimum height to ensure visibility */
+        pointer-events: none; /* Prevent drag on background images */
+        /* Height will be determined by child .header-background-css element */
+    }
+    .mobile-grid-row.header-background-layer img,
+    .grid-section-image.header-bg-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+    .header-background-css {
+        width: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1;
+        background-color: #fffe05; /*this should not be updated*/
+        display: block;
+        min-height: 200px; /* Minimum height to ensure visibility */
+        /* Height will be set dynamically by JavaScript to 2.5 section heights */
+    }
+    
+    /* Circular blue logo element - similar to ambev logo */
+    .header-background-css::before {
+        content: '';
+        position: absolute;
+        top: 20px; /* Position from top */
+        left: 20px; /* Position from left */
+        width: 60px; /* Circle diameter */
+        height: 60px; /* Circle diameter */
+        background-color: #0066CC; /* Blue color similar to ambev logo */
+        border-radius: 50%; /* Makes it circular */
+        display: block;
+        z-index: 2; /* Above the yellow background */
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+    }
+    
+    /* Optional: Add text inside the circle (like "ambev") */
+    .header-background-css::after {
+        content: 'ambev';
+        position: absolute;
+        top: 35px; /* Vertically center text in circle */
+        left: 20px;
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 14px;
+        font-weight: bold;
+        font-family: Arial, sans-serif;
+        text-transform: lowercase;
+        z-index: 3; /* Above the circle */
+        pointer-events: none; /* Don't interfere with interactions */
+    }
+    /* Regular image layer - all other sections */
+    .mobile-grid-row.regular-image-layer {
+        position: relative;
+        z-index: 10; /* Higher z-index to ensure images are in front of header background */
+        background-color: transparent; /* Ensure transparency so header background shows through */
+    }
+    .mobile-grid-row.dragging {
+        opacity: 0.5;
+    }
+    .mobile-grid-row.drag-over {
+        border-top: 3px solid #2196f3;
+        background-color: rgba(33, 150, 243, 0.1);
+    }
+    /* Preview sections grid layout */
+    .preview-sections-container {
+        display: flex;
+        gap: 20px;
+        margin: 20px 0;
+    }
+    .sections-grid-panel {
+        width: 450px;
+        min-width: 450px;
+        flex-shrink: 0;
+    }
+    .mobile-preview-panel {
+        flex: 1;
+        min-width: 0;
+    }
+    .sections-grid-table {
+        width: 100%;
+    }
+    .sections-grid-table .ui-datatable-data tr {
+        cursor: move;
+    }
+    .sections-grid-table .ui-datatable-data tr.ui-state-highlight {
+        background-color: #e3f2fd;
+        border: 1px dashed #2196f3;
+    }
+    .mobile-grid-row.ui-state-highlight {
+        background-color: #e3f2fd !important;
+        border: 2px dashed #2196f3 !important;
+        min-height: 50px;
+        opacity: 0.8;
+    }
+    .reorder-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+    .reorder-buttons .ui-button {
+        padding: 4px 8px;
+        min-width: 32px;
+        height: 28px;
     }
   </style>
   <script type="text/javascript">
@@ -196,6 +425,151 @@
         }
     }
 
+    // Variables to track drag and drop in mobile preview
+    var draggedImageIndex = -1;
+    var draggedElement = null;
+
+    function handlePreviewImageDragStart(event, element) {
+        if (!element || element.classList.contains('header-background-layer')) {
+            event.preventDefault();
+            return false;
+        }
+        event.stopPropagation();
+        var index = parseInt(element.getAttribute('data-index'));
+        if (isNaN(index) || index &lt; 0) {
+            console.error('Invalid index in drag start:', index, element);
+            event.preventDefault();
+            return false;
+        }
+        draggedImageIndex = index;
+        draggedElement = element;
+        if (event.dataTransfer) {
+            event.dataTransfer.effectAllowed = 'move';
+            event.dataTransfer.setData('text/plain', index.toString());
+        }
+        element.style.opacity = '0.5';
+        element.classList.add('dragging');
+        console.log('Drag started for index:', index);
+        return true;
+    }
+
+    function handlePreviewImageDragOver(event, element) {
+        if (!element || element.classList.contains('header-background-layer')) {
+            return false;
+        }
+        event.preventDefault();
+        event.stopPropagation();
+        if (event.dataTransfer) {
+            event.dataTransfer.dropEffect = 'move';
+        }
+        if (element !== draggedElement) {
+            element.classList.add('drag-over');
+        }
+        return false;
+    }
+
+    function handlePreviewImageDrop(event, element) {
+        if (!element || element.classList.contains('header-background-layer')) {
+            return false;
+        }
+        event.preventDefault();
+        event.stopPropagation();
+        
+        var dropIndex = parseInt(element.getAttribute('data-index'));
+        if (isNaN(dropIndex) || dropIndex &lt; 0) {
+            console.error('Invalid drop index:', dropIndex, element);
+            resetDragState();
+            return false;
+        }
+        
+        if (draggedImageIndex === -1 || draggedImageIndex === dropIndex) {
+            console.log('No reorder needed - same index or invalid:', draggedImageIndex, dropIndex);
+            resetDragState();
+            return false;
+        }
+
+        // Call backend to reorder sections
+        console.log('Reordering from index', draggedImageIndex, 'to index', dropIndex);
+        if (typeof reorderPreviewImagesRemote === 'function') {
+            reorderPreviewImagesRemote([{name: 'fromIndex', value: draggedImageIndex}, {name: 'toIndex', value: dropIndex}]);
+        } else {
+            console.error('reorderPreviewImagesRemote function not found. Make sure p:remoteCommand is loaded.');
+            // Try alternative approach
+            setTimeout(function() {
+                if (typeof reorderPreviewImagesRemote === 'function') {
+                    reorderPreviewImagesRemote([{name: 'fromIndex', value: draggedImageIndex}, {name: 'toIndex', value: dropIndex}]);
+                }
+            }, 100);
+        }
+        
+        resetDragState();
+        return false;
+    }
+
+    function handlePreviewImageDragEnd(event) {
+        resetDragState();
+    }
+
+    function resetDragState() {
+        // Remove visual feedback from all rows
+        var rows = document.querySelectorAll('.mobile-grid-row');
+        rows.forEach(function(row) {
+            row.style.opacity = '1';
+            row.classList.remove('dragging', 'drag-over');
+        });
+        
+        draggedImageIndex = -1;
+        draggedElement = null;
+    }
+
+    // Function to calculate and set header background CSS height to 2.5 section heights
+    function updateHeaderBackgroundHeight() {
+        var headerBgCss = document.querySelector('.header-background-css');
+        if (!headerBgCss) {
+            return;
+        }
+        
+        // Get all regular image sections (not header backgrounds)
+        var regularSections = document.querySelectorAll('.mobile-grid-row.regular-image-layer');
+        if (regularSections.length === 0) {
+            // Fallback: use all sections if no regular sections found
+            regularSections = document.querySelectorAll('.mobile-grid-row:not(.header-background-layer)');
+        }
+        
+        if (regularSections.length > 0) {
+            // Calculate average height of first few sections
+            var totalHeight = 0;
+            var count = Math.min(regularSections.length, 3); // Use first 3 sections for average
+            for (var i = 0; i &lt; count; i++) {
+                var rect = regularSections[i].getBoundingClientRect();
+                totalHeight += rect.height;
+            }
+            var avgSectionHeight = totalHeight / count;
+            
+            // Set height to 2.5 times the average section height
+            var targetHeight = avgSectionHeight * 2.5;
+            headerBgCss.style.height = targetHeight + 'px';
+            console.log('Header background height set to:', targetHeight, 'px (2.5 x', avgSectionHeight, 'px)');
+        }
+    }
+
+    // Update header background height on page load and after AJAX updates
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(updateHeaderBackgroundHeight, 100);
+        });
+    } else {
+        setTimeout(updateHeaderBackgroundHeight, 100);
+    }
+
+    // Recalculate after AJAX updates
+    if (typeof PrimeFaces !== 'undefined') {
+        PrimeFaces.ajax.Queue.add({
+            success: function() {
+                setTimeout(updateHeaderBackgroundHeight, 200);
+            }
+        });
+    }
   </script>
 </h:head>
 
@@ -206,16 +580,19 @@
            collapsed="false"
            style="margin: 20px;">
     <f:facet name="actions">
-      <p:commandButton type="button"
-                       icon="pi pi-arrows-v"
-                       title="Collapse/Expand"
-                       styleClass="ui-button-flat ui-button-secondary"
-                       onclick="PF('sectionManagementPanel').toggle(); return false;"/>
+      <button type="button"
+              class="ui-button ui-widget ui-state-default ui-corner-all ui-button-flat ui-button-secondary ui-button-icon-only"
+              title="Collapse/Expand"
+              onclick="PF('sectionManagementPanel').toggle(); return false;">
+        <span class="ui-button-icon-left pi pi-arrows-v"></span>
+        <span class="ui-button-text ui-c"> </span>
+      </button>
     </f:facet>
     <h2>Dynamic Section Customization</h2>
     <p>Upload recommendations payload to dynamically display sections with their associated images.</p>
 
     <h:form id="payloadForm">
+      <p:messages id="payloadMessages" showDetail="true" closable="true" style="margin-bottom: 10px;"/>
       <p:panelGrid columns="1" style="margin-top: 20px; width: 100%;">
         <p:outputLabel value="Recommendations Payload (JSON):" for="payloadInput"/>
         <p:inputTextarea id="payloadInput"
@@ -226,9 +603,12 @@
                          placeholder="Paste your recommendations payload JSON here..."/>
         <p:commandButton value="Parse Payload"
                          action="#{sectionManagementBean.parsePayload()}"
-                         update=":sectionsDisplay :appPreview"
+                         update="payloadMessages sectionsDisplay sectionsGridForm:sectionsGridTable appPreview"
+                         process="@this payloadInput"
                          icon="pi pi-refresh"
-                         style="margin-top: 10px;"/>
+                         style="margin-top: 10px;"
+                         ajax="true"
+                         oncomplete="console.log('Parse Payload completed'); updateHeaderBackgroundHeight();"/>
       </p:panelGrid>
     </h:form>
   </p:panel>
@@ -240,11 +620,13 @@
            collapsed="true"
            style="margin: 20px;">
     <f:facet name="actions">
-      <p:commandButton type="button"
-                       icon="pi pi-arrows-v"
-                       title="Collapse/Expand"
-                       styleClass="ui-button-flat ui-button-secondary"
-                       onclick="PF('dynamicSectionsDisplayPanel').toggle(); return false;"/>
+      <button type="button"
+              class="ui-button ui-widget ui-state-default ui-corner-all ui-button-flat ui-button-secondary ui-button-icon-only"
+              title="Collapse/Expand"
+              onclick="PF('dynamicSectionsDisplayPanel').toggle(); return false;">
+        <span class="ui-button-icon-left pi pi-arrows-v"></span>
+        <span class="ui-button-text ui-c"> </span>
+      </button>
     </f:facet>
     <p:outputPanel rendered="#{empty sectionManagementBean.sections}">
       <p style="text-align: center; color: #999; padding: 40px;">
@@ -261,7 +643,15 @@
             Section ID: #{section.id}
           </div>
 
-          <p:outputPanel rendered="#{sectionManagementBean.hasImage(section.id)}">
+          <!-- Show CSS circular blue element for partners section -->
+          <p:outputPanel rendered="#{section.id == 'partners'}">
+            <div class="section-card-header-background-css">
+              <!-- Circular blue logo will be rendered via CSS ::before and ::after pseudo-elements -->
+            </div>
+          </p:outputPanel>
+
+          <!-- Show image for non-header background sections that have images -->
+          <p:outputPanel rendered="#{sectionManagementBean.hasImage(section.id) and not sectionManagementBean.isHeaderBackgroundSection(section.id)}">
             <p:draggable>
               <img src="#{sectionManagementBean.getImageUrlForSection(section.id)}"
                    alt="Section #{section.id}"
@@ -271,7 +661,8 @@
             </p:draggable>
           </p:outputPanel>
 
-          <p:outputPanel rendered="#{not sectionManagementBean.hasImage(section.id)}">
+          <!-- Show placeholder for sections without images (non-header backgrounds) -->
+          <p:outputPanel rendered="#{not sectionManagementBean.hasImage(section.id) and not sectionManagementBean.isHeaderBackgroundSection(section.id)}">
             <div class="no-image-placeholder">
               <div style="text-align: center;">
                 <i class="pi pi-image" style="font-size: 32px; display: block; margin-bottom: 5px;"></i>
@@ -281,36 +672,118 @@
             </div>
           </p:outputPanel>
 
-          <div class="section-properties">
-            <p:outputPanel rendered="#{not empty section.titleResource}">
-              <strong>Title Resource:</strong> #{section.titleResource}<br/>
-            </p:outputPanel>
-            <p:outputPanel rendered="#{not empty section.layoutType}">
-              <strong>Layout:</strong> #{section.layoutType}
-              <p:outputPanel rendered="#{not empty section.columns}">
-                (Columns: #{section.columns})
-              </p:outputPanel>
-              <br/>
-            </p:outputPanel>
-            <p:outputPanel rendered="#{not empty section.componentType}">
-              <strong>Component Type:</strong> #{section.componentType}<br/>
-            </p:outputPanel>
-            <p:outputPanel rendered="#{not empty section.entityType}">
-              <strong>Entity Type:</strong> #{section.entityType}<br/>
-            </p:outputPanel>
-          </div>
+          <!-- Configuration Fields - Only for partners section -->
+          <p:outputPanel rendered="#{section.id == 'partners'}">
+            <h:form id="sectionConfigForm#{section.id.replaceAll('[^a-zA-Z0-9]', '_')}">
+              <div style="width: 100%; min-width: 1000px; margin-top: 15px;">
+                <!-- Header Configuration -->
+                <div style="display: flex; align-items: center; margin-bottom: 12px;">
+                  <div class="label-column" style="flex-shrink: 0;">
+                    <p:outputLabel value="Title Resource:" style="text-align: left; display: block; margin: 0; padding: 0;"/>
+                  </div>
+                  <div class="value-column" style="flex: 1;">
+                    <p:inputText id="titleResource#{section.id.replaceAll('[^a-zA-Z0-9]', '_')}"
+                                value="#{section.titleResource}"
+                                placeholder="e.g., partner_store_title"
+                                style="width: 100%;"/>
+                  </div>
+                </div>
+                
+                <!-- Layout Configuration -->
+                <div style="display: flex; align-items: center; margin-bottom: 12px;">
+                  <div class="label-column" style="flex-shrink: 0;">
+                    <p:outputLabel value="Layout Type:" style="text-align: left; display: block; margin: 0; padding: 0;"/>
+                  </div>
+                  <div class="value-column" style="flex: 1;">
+                    <p:inputText id="layoutType#{section.id.replaceAll('[^a-zA-Z0-9]', '_')}"
+                                value="#{section.layoutType}"
+                                placeholder="e.g., carousel"
+                                style="width: 100%;"/>
+                  </div>
+                </div>
+                
+                <!-- Columns -->
+                <div style="display: flex; align-items: center; margin-bottom: 12px;">
+                  <div class="label-column" style="flex-shrink: 0;">
+                    <p:outputLabel value="Columns:" style="text-align: left; display: block; margin: 0; padding: 0;"/>
+                  </div>
+                  <div class="value-column" style="flex: 1;">
+                    <p:inputText id="columns#{section.id.replaceAll('[^a-zA-Z0-9]', '_')}"
+                                value="#{section.columns}"
+                                placeholder="e.g., 4.5"
+                                style="width: 100%;"/>
+                  </div>
+                </div>
+                
+                <!-- Segment -->
+                <div style="display: flex; align-items: center; margin-bottom: 12px;">
+                  <div class="label-column" style="flex-shrink: 0;">
+                    <p:outputLabel value="Segment:" style="text-align: left; display: block; margin: 0; padding: 0;"/>
+                  </div>
+                  <div class="value-column" style="flex: 1;">
+                    <p:inputText id="segment#{section.id.replaceAll('[^a-zA-Z0-9]', '_')}"
+                                value="#{section.segment}"
+                                placeholder="e.g., PARTNER_SELLERS"
+                                style="width: 100%;"/>
+                  </div>
+                </div>
+                
+                <!-- Target Use Case -->
+                <div style="display: flex; align-items: center; margin-bottom: 12px;">
+                  <div class="label-column" style="flex-shrink: 0;">
+                    <p:outputLabel value="Target Use Case:" style="text-align: left; display: block; margin: 0; padding: 0;"/>
+                  </div>
+                  <div class="value-column" style="flex: 1;">
+                    <p:inputText id="useCase#{section.id.replaceAll('[^a-zA-Z0-9]', '_')}"
+                                value="#{section.useCase}"
+                                placeholder="e.g., PARTNER_SELLERS"
+                                style="width: 100%;"/>
+                  </div>
+                </div>
+                
+                <!-- Component Type -->
+                <div style="display: flex; align-items: center; margin-bottom: 12px;">
+                  <div class="label-column" style="flex-shrink: 0;">
+                    <p:outputLabel value="Component Type:" style="text-align: left; display: block; margin: 0; padding: 0;"/>
+                  </div>
+                  <div class="value-column" style="flex: 1;">
+                    <p:inputText id="componentType#{section.id.replaceAll('[^a-zA-Z0-9]', '_')}"
+                                value="#{section.componentType}"
+                                placeholder="e.g., circularImage"
+                                style="width: 100%;"/>
+                  </div>
+                </div>
+                
+                <!-- Entity Type -->
+                <div style="display: flex; align-items: center; margin-bottom: 12px;">
+                  <div class="label-column" style="flex-shrink: 0;">
+                    <p:outputLabel value="Entity Type:" style="text-align: left; display: block; margin: 0; padding: 0;"/>
+                  </div>
+                  <div class="value-column" style="flex: 1;">
+                    <p:inputText id="entityType#{section.id.replaceAll('[^a-zA-Z0-9]', '_')}"
+                                value="#{section.entityType}"
+                                placeholder="e.g., store"
+                                style="width: 100%;"/>
+                  </div>
+                </div>
+              </div>
+            </h:form>
+          </p:outputPanel>
 
-          <p:commandButton value="Upload Image for this Section"
-                           icon="pi pi-upload"
-                           style="margin-top: 10px;"
-                           onclick="setSectionIdForUpload('#{section.id}', 'uploadForm:sectionInput'); PF('uploadDialog_#{section.id.replaceAll(&quot;[^a-zA-Z0-9]&quot;, &quot;_&quot;)}').show();"
-                           rendered="#{not sectionManagementBean.hasImage(section.id)}"/>
+          <h:form id="sectionActionsForm">
+            <p:commandButton value="Upload Image for this Section"
+                             icon="pi pi-upload"
+                             type="button"
+                             style="margin-top: 10px;"
+                             onclick="setSectionIdForUpload('#{section.id}', 'uploadForm:sectionInput'); PF('uploadDialog_#{section.id.replaceAll(&quot;[^a-zA-Z0-9]&quot;, &quot;_&quot;)}').show();"
+                             rendered="#{not sectionManagementBean.hasImage(section.id)}"/>
 
-          <p:commandButton value="Refresh Mappings"
-                           icon="pi pi-refresh"
-                           action="#{sectionManagementBean.refreshSectionMappings()}"
-                           update=":sectionsDisplay :appPreview"
-                           style="margin-top: 10px; margin-left: 10px;"/>
+            <p:commandButton value="Refresh Mappings"
+                             icon="pi pi-refresh"
+                             action="#{sectionManagementBean.refreshSectionMappings()}"
+                             update=":sectionsDisplay :appPreview"
+                             style="margin-top: 10px; margin-left: 10px;"/>
+          </h:form>
         </div>
 
         <p:dialog header="Upload Image for Section: #{section.id}"
@@ -357,162 +830,369 @@
            collapsed="true"
            style="margin: 20px;">
     <f:facet name="actions">
-      <p:commandButton type="button"
-                       icon="pi pi-arrows-v"
-                       title="Collapse/Expand"
-                       styleClass="ui-button-flat ui-button-secondary"
-                       onclick="PF('sectionsLibraryPanel').toggle(); return false;"/>
+      <button type="button"
+              class="ui-button ui-widget ui-state-default ui-corner-all ui-button-flat ui-button-secondary ui-button-icon-only"
+              title="Collapse/Expand"
+              onclick="PF('sectionsLibraryPanel').toggle(); return false;">
+        <span class="ui-button-icon-left pi pi-arrows-v"></span>
+        <span class="ui-button-text ui-c"> </span>
+      </button>
     </f:facet>
 
     <h:form id="sectionsLibraryForm">
-      <p:panelGrid columns="2" style="margin-bottom: 15px; width: 100%;">
-        <p:outputLabel value="Section ID:" for="sectionsLibrarySectionId"/>
-        <p:inputText id="sectionsLibrarySectionId"
-                     value="#{sectionManagementBean.sectionsLibrarySectionId}"
+      <div style="padding: 10px;">
+        <div style="border: 1px solid #eee; border-radius: 8px; padding: 12px; background: #fff;">
+          <p:panelGrid columns="2" style="margin-bottom: 12px; width: 100%;" styleClass="ui-fluid">
+            <p:outputLabel value="Section ID:" for="sectionsLibrarySectionId"/>
+            <p:inputText id="sectionsLibrarySectionId"
+                         value="#{sectionManagementBean.sectionsLibrarySectionId}"
+                         style="width: 100%;"
+                         placeholder="Type a section id..."/>
+
+            <p:outputLabel value="Uploaded images:" for="sectionsLibraryImageGroup"/>
+            <p:selectOneMenu id="sectionsLibraryImageGroup"
+                             value="#{sectionManagementBean.sectionsLibraryImageGroup}"
+                             style="width: 100%;">
+              <f:selectItem itemLabel="Select an image group..." itemValue="" noSelectionOption="true"/>
+              <f:selectItems value="#{sectionManagementBean.uploadedImageGroups}"/>
+            </p:selectOneMenu>
+          </p:panelGrid>
+
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <p:commandButton value="Preview"
+                             icon="pi pi-eye"
+                             action="#{sectionManagementBean.previewSelectedImage()}"
+                             update=":sectionsGridForm:sectionsGridTable :appPreview sectionsLibraryForm:messages"/>
+          </div>
+
+          <p:messages id="messages" style="margin-top: 10px;"/>
+        </div>
+      </div>
+
+      <p:outputPanel rendered="#{empty sectionManagementBean.sections}">
+        <p style="text-align: center; color: #999; padding: 30px;">
+          No sections available. Parse a payload to populate the library.
+        </p>
+      </p:outputPanel>
+
+      <p:outputPanel rendered="#{sectionManagementBean.sections != null and not empty sectionManagementBean.sections}">
+        <p:dataTable value="#{sectionManagementBean.allSectionIds}"
+                     var="sectionId"
                      style="width: 100%;"
-                     placeholder="Type a section id..."/>
+                     paginator="true"
+                     rows="10"
+                     emptyMessage="No sections available.">
+          <p:column headerText="Section ID">
+            <h:outputText value="#{sectionId}"/>
+          </p:column>
 
-        <p:outputLabel value="Uploaded images:" for="sectionsLibraryImageGroup"/>
-        <p:selectOneMenu id="sectionsLibraryImageGroup"
-                         value="#{sectionManagementBean.sectionsLibraryImageGroup}"
-                         style="width: 100%;">
-          <f:selectItem itemLabel="Select an image group..." itemValue="" noSelectionOption="true"/>
-          <f:selectItems value="#{sectionManagementBean.uploadedImageGroups}"/>
-        </p:selectOneMenu>
-      </p:panelGrid>
+          <p:column headerText="Image">
+            <p:outputPanel rendered="#{sectionManagementBean.hasImage(sectionId)}">
+              <h:outputText value="Yes"/>
+            </p:outputPanel>
+            <p:outputPanel rendered="#{not sectionManagementBean.hasImage(sectionId)}">
+              <h:outputText value="No"/>
+            </p:outputPanel>
+          </p:column>
+
+          <p:column headerText="Actions" style="width: 120px;">
+            <p:commandButton type="button"
+                             icon="pi pi-copy"
+                             title="Copy section id"
+                             styleClass="ui-button-flat ui-button-secondary"
+                             onclick="navigator.clipboard.writeText('#{sectionId}'); return false;"/>
+          </p:column>
+        </p:dataTable>
+      </p:outputPanel>
     </h:form>
-
-    <p:outputPanel rendered="#{empty sectionManagementBean.sections}">
-      <p style="text-align: center; color: #999; padding: 30px;">
-        No sections available. Parse a payload to populate the library.
-      </p>
-    </p:outputPanel>
-
-    <p:outputPanel rendered="#{sectionManagementBean.sections != null and not empty sectionManagementBean.sections}">
-      <p:dataTable value="#{sectionManagementBean.allSectionIds}"
-                   var="sectionId"
-                   style="width: 100%;"
-                   paginator="true"
-                   rows="10"
-                   emptyMessage="No sections available.">
-        <p:column headerText="Section ID">
-          <h:outputText value="#{sectionId}"/>
-        </p:column>
-
-        <p:column headerText="Image">
-          <p:outputPanel rendered="#{sectionManagementBean.hasImage(sectionId)}">
-            <h:outputText value="Yes"/>
-          </p:outputPanel>
-          <p:outputPanel rendered="#{not sectionManagementBean.hasImage(sectionId)}">
-            <h:outputText value="No"/>
-          </p:outputPanel>
-        </p:column>
-
-        <p:column headerText="Actions" style="width: 120px;">
-          <p:commandButton type="button"
-                           icon="pi pi-copy"
-                           title="Copy section id"
-                           styleClass="ui-button-flat ui-button-secondary"
-                           onclick="navigator.clipboard.writeText('#{sectionId}'); return false;"/>
-        </p:column>
-      </p:dataTable>
-    </p:outputPanel>
   </p:panel>
 
   <p:panel header="Mobile App Preview" id="appPreview" style="margin: 20px;">
-    <p:outputPanel rendered="#{sectionManagementBean.sections == null or empty sectionManagementBean.sections}">
-      <div class="phone-wrapper">
-        <div class="phone-frame">
-          <div class="phone-screen">
-            <div class="phone-notch"></div>
-            <div class="mobile-app-container">
-              <!-- Mobile Status Bar -->
-              <div class="mobile-status-bar">
-                <div class="status-left">
-                  <span class="status-time">2:26</span>
-                  <span class="status-icon">📶</span>
+    <div class="preview-sections-container">
+      <!-- Left Side: Sections Grid -->
+      <div class="sections-grid-panel">
+        <h:form id="sectionsGridForm">
+          <p:remoteCommand name="reorderPreviewImagesRemote"
+                           action="#{sectionManagementBean.reorderPreviewImages(param.fromIndex, param.toIndex)}"
+                           update=":sectionsGridForm:sectionsGridTable :appPreview"
+                           process="@this"/>
+          <p:panel header="Preview Sections" id="sectionsGridPanel" styleClass="sections-grid-panel">
+            <p:dataTable id="sectionsGridTable"
+                        value="#{sectionManagementBean.orderedPreviewSections}"
+                        var="sectionItem"
+                        styleClass="sections-grid-table"
+                        emptyMessage="No sections in preview. Add sections using the Preview button above."
+                        rowKey="#{sectionItem.fileName}"
+                        draggableRows="true"
+                        dragMode="row">
+              <p:ajax event="rowReorder" 
+                     listener="#{sectionManagementBean.onRowReorder}"
+                     update=":sectionsGridForm:sectionsGridTable :appPreview"
+                     process="@this"/>
+              <p:column headerText="#" style="width: 50px; text-align: center;">
+                <h:outputText value="#{sectionItem.index}"/>
+              </p:column>
+              
+              <p:column headerText="Section" style="width: 200px; min-width: 150px;">
+                <h:outputText value="#{sectionItem.sectionName}" style="word-wrap: break-word; white-space: normal;"/>
+              </p:column>
+              
+              <!-- Radio buttons for header_background sections: choose between Image or CSS -->
+              <p:column headerText="Header Background" style="width: 180px;" 
+                       rendered="#{sectionManagementBean.isHeaderBackgroundSection(sectionItem.sectionName)}">
+                <h:panelGroup layout="block" style="display: flex; flex-direction: row; gap: 15px; align-items: center;">
+                  <p:selectOneRadio id="headerBgType#{sectionItem.index}" 
+                                   value="#{sectionItem.useCssForHeaderBackground}">
+                    <f:selectItem itemLabel="Image" itemValue="#{false}"/>
+                    <f:selectItem itemLabel="CSS" itemValue="#{true}"/>
+                    <p:ajax event="change" 
+                           listener="#{sectionManagementBean.onHeaderBackgroundTypeChange(sectionItem.index - 1)}"
+                           update=":sectionsGridForm:sectionsGridTable :appPreview"
+                           process="@this"
+                           oncomplete="updateHeaderBackgroundHeight();"/>
+                  </p:selectOneRadio>
+                </h:panelGroup>
+              </p:column>
+              
+              <p:column headerText="Actions" style="width: 180px;">
+                <div class="reorder-buttons" style="display: inline-flex; flex-direction: row; gap: 4px; align-items: center;">
+                  <p:commandButton icon="pi pi-arrow-up"
+                                 title="Move Up"
+                                 styleClass="ui-button-small ui-button-secondary"
+                                 disabled="#{sectionItem.index == 1}"
+                                 action="#{sectionManagementBean.moveSectionUp(sectionItem.index - 1)}"
+                                 update=":sectionsGridForm:sectionsGridTable :appPreview"
+                                 process="@this"
+                                 ajax="true"/>
+                  <p:commandButton icon="pi pi-arrow-down"
+                                 title="Move Down"
+                                 styleClass="ui-button-small ui-button-secondary"
+                                 disabled="#{sectionItem.index == sectionManagementBean.orderedPreviewSections.size()}"
+                                 action="#{sectionManagementBean.moveSectionDown(sectionItem.index - 1)}"
+                                 update=":sectionsGridForm:sectionsGridTable :appPreview"
+                                 process="@this"
+                                 ajax="true"/>
+                  <p:commandButton icon="pi pi-trash"
+                                 title="Delete"
+                                 styleClass="ui-button-small ui-button-danger"
+                                 action="#{sectionManagementBean.deletePreviewSection(sectionItem.index - 1)}"
+                                 update=":sectionsGridForm:sectionsGridTable :appPreview"
+                                 process="@this"
+                                 ajax="true"
+                                 onclick="return confirm('Are you sure you want to delete this section from preview?');"/>
                 </div>
-                <div class="status-right">
-                  <span class="status-icon">🔒</span>
-                  <span class="status-icon">📶</span>
-                  <span class="status-icon">📱</span>
-                  <span class="status-battery">97%</span>
-                </div>
-              </div>
-
-              <!-- Empty State -->
-              <div class="mobile-content" style="display: flex; align-items: center; justify-content: center;">
-                <div style="text-align: center; padding: 40px;">
-                  <p style="color: #666; font-size: 14px;">
-                    Parse a payload to see sections displayed as a mobile app screen
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+              </p:column>
+            </p:dataTable>
+          </p:panel>
+        </h:form>
       </div>
-    </p:outputPanel>
-
-    <p:outputPanel rendered="#{sectionManagementBean.sections != null and not empty sectionManagementBean.sections}">
-      <div class="phone-wrapper">
-        <div class="phone-frame">
-          <div class="phone-screen">
-            <div class="phone-notch"></div>
-            <div class="mobile-app-container">
-              <!-- Mobile Status Bar -->
-              <div class="mobile-status-bar">
-                <div class="status-left">
-                  <span class="status-time">2:26</span>
-                  <span class="status-icon">📶</span>
+      
+      <!-- Right Side: Mobile Preview -->
+      <div class="mobile-preview-panel">
+        <p:outputPanel rendered="#{sectionManagementBean.sections == null or empty sectionManagementBean.sections}">
+        <div class="phone-wrapper">
+          <div class="phone-frame">
+            <div class="phone-screen">
+              <div class="phone-notch"></div>
+              <div class="mobile-app-container">
+                <!-- Mobile Status Bar -->
+                <div class="mobile-status-bar">
+                  <div class="status-left">
+                    <span class="status-time">2:26</span>
+                    <span class="status-icon">📶</span>
+                  </div>
+                  <div class="status-right">
+                    <span class="status-icon">🔒</span>
+                    <span class="status-icon">📶</span>
+                    <span class="status-icon">📱</span>
+                    <span class="status-battery">97%</span>
+                  </div>
                 </div>
-                <div class="status-right">
-                  <span class="status-icon">🔒</span>
-                  <span class="status-icon">📶</span>
-                  <span class="status-icon">📱</span>
-                  <span class="status-battery">97%</span>
-                </div>
-              </div>
 
-              <!-- Mobile App Content -->
-              <div class="mobile-content">
-                <div class="mobile-grid-container">
-                  <ui:repeat value="#{sectionManagementBean.sections}" var="section" id="mobileSectionsList">
-                    <div class="mobile-grid-row">
-                      <p:outputPanel rendered="#{sectionManagementBean.hasImage(section.id)}">
-                        <p:draggable>
-                          <img src="#{sectionManagementBean.getImageUrlForSection(section.id)}"
-                               alt="Section #{section.id}"
-                               class="grid-section-image"
-                               style="cursor: move; width: 100%; height: auto; object-fit: cover; display: block;"
-                               title="Drag to move"
-                               onerror="console.error('Image failed to load:', this.src); this.style.display='none'; var placeholder = this.nextElementSibling; if(placeholder) placeholder.style.display='flex';"/>
-                        </p:draggable>
-                        <div class="grid-section-placeholder" style="display: none;">
-                          <div class="placeholder-content">
-                            <i class="pi pi-image" style="font-size: 32px; color: #ccc; display: block; margin-bottom: 8px;"></i>
-                            <span style="color: #999; font-size: 12px;">Image not found</span>
-                          </div>
+                <div class="mobile-content">
+                  <p:outputPanel rendered="#{not empty sectionManagementBean.previewImageUrls}">
+                    <div class="mobile-grid-container">
+                      <ui:repeat value="#{sectionManagementBean.previewImageUrls}" var="previewUrl" id="previewImagesEmptyState">
+                        <div class="mobile-grid-row">
+                          <h:panelGroup id="previewImageItem" layout="block">
+                            <img src="#{previewUrl}"
+                                 alt="Preview image"
+                                 class="grid-section-image"
+                                 style="cursor: move; width: 100%; height: auto; object-fit: cover; display: block;"
+                                 title="Drag to move"/>
+                          </h:panelGroup>
+                          <p:draggable for="previewImageItem"/>
                         </div>
-                      </p:outputPanel>
-
-                      <p:outputPanel rendered="#{not sectionManagementBean.hasImage(section.id)}">
-                        <div class="grid-section-placeholder">
-                          <div class="placeholder-content">
-                            <i class="pi pi-image" style="font-size: 32px; color: #ccc; display: block; margin-bottom: 8px;"></i>
-                            <span style="color: #999; font-size: 12px;">No image</span>
-                          </div>
-                        </div>
-                      </p:outputPanel>
+                      </ui:repeat>
                     </div>
-                  </ui:repeat>
+                  </p:outputPanel>
+
+                  <p:outputPanel rendered="#{empty sectionManagementBean.previewImageUrls}">
+                    <div style="display: flex; align-items: center; justify-content: center; height: 100%;">
+                      <div style="text-align: center; padding: 40px;">
+                        <p style="color: #666; font-size: 14px;">
+                          Parse a payload to see sections displayed as a mobile app screen
+                        </p>
+                      </div>
+                    </div>
+                  </p:outputPanel>
                 </div>
               </div>
             </div>
           </div>
         </div>
+      </p:outputPanel>
+
+      <p:outputPanel rendered="#{sectionManagementBean.sections != null and not empty sectionManagementBean.sections}">
+        <div class="phone-wrapper">
+          <div class="phone-frame">
+            <div class="phone-screen">
+              <div class="phone-notch"></div>
+              <div class="mobile-app-container">
+                <!-- Mobile Status Bar -->
+                <div class="mobile-status-bar">
+                  <div class="status-left">
+                    <span class="status-time">2:26</span>
+                    <span class="status-icon">📶</span>
+                  </div>
+                  <div class="status-right">
+                    <span class="status-icon">🔒</span>
+                    <span class="status-icon">📶</span>
+                    <span class="status-icon">📱</span>
+                    <span class="status-battery">97%</span>
+                  </div>
+                </div>
+
+                <!-- Mobile App Content -->
+                <div class="mobile-content" style="position: relative;">
+                  <div class="mobile-grid-container" style="position: relative; min-height: 100%;">
+                    <!-- Render header backgrounds first (behind everything) -->
+                    <p:outputPanel rendered="#{not empty sectionManagementBean.previewImageUrls}">
+                      <ui:repeat value="#{sectionManagementBean.previewImageUrls}" var="previewUrl" varStatus="status" id="headerBackgroundImages">
+                        <p:outputPanel rendered="#{sectionManagementBean.isHeaderBackgroundSection(sectionManagementBean.orderedPreviewSections[status.index].sectionName)}">
+                          <div class="mobile-grid-row header-background-layer">
+                            <h:panelGroup id="headerBgItem#{status.index}" layout="block" style="position: relative; width: 100%; height: 100%;">
+                              <!-- Show CSS styling for header_background if CSS option is selected -->
+                              <p:outputPanel rendered="#{sectionManagementBean.orderedPreviewSections[status.index].useCssForHeaderBackground}">
+                                <div class="header-background-css"></div>
+                              </p:outputPanel>
+                              <!-- Show image for header_background if Image option is selected -->
+                              <p:outputPanel rendered="#{not sectionManagementBean.orderedPreviewSections[status.index].useCssForHeaderBackground}">
+                                <img src="#{previewUrl}"
+                                     alt="Header background"
+                                     class="grid-section-image header-bg-image"
+                                     style="width: 100%; height: 100%; object-fit: cover; display: block;"
+                                     draggable="false"
+                                     onerror="console.error('Failed to load header background image:', this.src);"/>
+                              </p:outputPanel>
+                            </h:panelGroup>
+                          </div>
+                        </p:outputPanel>
+                      </ui:repeat>
+                    </p:outputPanel>
+                    
+                    <!-- Render regular images (in front of header backgrounds) -->
+                    <p:outputPanel rendered="#{not empty sectionManagementBean.previewImageUrls}">
+                      <ui:repeat value="#{sectionManagementBean.previewImageUrls}" var="previewUrl" varStatus="status" id="previewImages">
+                        <p:outputPanel rendered="#{not sectionManagementBean.isHeaderBackgroundSection(sectionManagementBean.orderedPreviewSections[status.index].sectionName)}">
+                          <div class="mobile-grid-row regular-image-layer" 
+                               draggable="true"
+                               data-index="#{status.index}"
+                               ondragstart="handlePreviewImageDragStart(event, this)"
+                               ondragover="handlePreviewImageDragOver(event, this)"
+                               ondrop="handlePreviewImageDrop(event, this)"
+                               ondragend="handlePreviewImageDragEnd(event)"
+                               style="cursor: move; position: relative; z-index: 10;">
+                            <h:panelGroup id="previewImageItem#{status.index}" layout="block" style="position: relative; width: 100%;">
+                              <img src="#{previewUrl}"
+                                   alt="Preview image"
+                                   class="grid-section-image"
+                                   style="width: 100%; height: auto; object-fit: cover; display: block; pointer-events: none;"
+                                   title="Drag to reorder"
+                                   draggable="false"
+                                   onerror="console.error('Failed to load image:', this.src);"/>
+                            </h:panelGroup>
+                          </div>
+                        </p:outputPanel>
+                      </ui:repeat>
+                    </p:outputPanel>
+
+                    <!-- When NOT using preview sections grid, show sections with their layout -->
+                    <p:outputPanel rendered="#{empty sectionManagementBean.previewImageUrls}">
+                      <p:outputPanel rendered="#{sectionManagementBean.headerBackgroundSection != null}">
+                        <div class="mobile-grid-row" style="position: relative;">
+                          <div style="position: relative; width: 100%;">
+                            <p:outputPanel rendered="#{sectionManagementBean.hasImage(sectionManagementBean.headerBackgroundSection.id)}">
+                              <h:panelGroup id="headerBackgroundImageItem" layout="block" style="position: relative; z-index: 0;">
+                                <img src="#{sectionManagementBean.getImageUrlForSection(sectionManagementBean.headerBackgroundSection.id)}"
+                                     alt="Header background - #{sectionManagementBean.headerBackgroundSection.id}"
+                                     class="grid-section-image"
+                                     style="cursor: move; width: 100%; height: auto; object-fit: cover; display: block;"
+                                     title="Drag to move"/>
+                              </h:panelGroup>
+                              <p:draggable for="headerBackgroundImageItem"/>
+                            </p:outputPanel>
+
+                            <p:outputPanel rendered="#{sectionManagementBean.overlaySections != null and not empty sectionManagementBean.overlaySections}">
+                              <div style="position: absolute; top: 0; left: 0; right: 0; z-index: 2; padding: 12px; display: flex; flex-direction: column; gap: 12px;">
+                                <ui:repeat value="#{sectionManagementBean.overlaySections}" var="overlaySection" id="overlaySections">
+                                  <p:outputPanel rendered="#{sectionManagementBean.hasImage(overlaySection.id)}">
+                                    <h:panelGroup id="overlayImageItem" layout="block">
+                                      <img src="#{sectionManagementBean.getImageUrlForSection(overlaySection.id)}"
+                                           alt="Overlay - #{overlaySection.id}"
+                                           class="grid-section-image"
+                                           style="cursor: move; width: 100%; height: auto; object-fit: cover; display: block;"
+                                           title="Drag to move"/>
+                                    </h:panelGroup>
+                                    <p:draggable for="overlayImageItem"/>
+                                  </p:outputPanel>
+                                </ui:repeat>
+                              </div>
+                            </p:outputPanel>
+                          </div>
+                        </div>
+                      </p:outputPanel>
+
+                      <ui:repeat value="#{sectionManagementBean.normalSections}" var="section" id="mobileSectionsList">
+                        <div class="mobile-grid-row">
+                          <p:outputPanel rendered="#{sectionManagementBean.hasImage(section.id)}">
+                            <h:panelGroup id="sectionImageItem" layout="block">
+                              <img src="#{sectionManagementBean.getImageUrlForSection(section.id)}"
+                                   alt="Section #{section.id}"
+                                   class="grid-section-image"
+                                   style="cursor: move; width: 100%; height: auto; object-fit: cover; display: block;"
+                                   title="Drag to move"
+                                   onerror="console.error('Image failed to load:', this.src); this.style.display='none'; var placeholder = this.nextElementSibling; if(placeholder) placeholder.style.display='flex';"/>
+                            </h:panelGroup>
+                            <p:draggable for="sectionImageItem"/>
+                            <div class="grid-section-placeholder" style="display: none;">
+                              <div class="placeholder-content">
+                                <i class="pi pi-image" style="font-size: 32px; color: #ccc; display: block; margin-bottom: 8px;"></i>
+                                <span style="color: #999; font-size: 12px;">Image not found</span>
+                              </div>
+                            </div>
+                          </p:outputPanel>
+
+                          <p:outputPanel rendered="#{not sectionManagementBean.hasImage(section.id)}">
+                            <div class="grid-section-placeholder">
+                              <div class="placeholder-content">
+                                <i class="pi pi-image" style="font-size: 32px; color: #ccc; display: block; margin-bottom: 8px;"></i>
+                                <span style="color: #999; font-size: 12px;">No image</span>
+                              </div>
+                            </div>
+                          </p:outputPanel>
+                        </div>
+                      </ui:repeat>
+                    </p:outputPanel>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </p:outputPanel>
       </div>
-    </p:outputPanel>
+    </div>
 
     <!-- Debug info -->
     <p:outputPanel style="margin-top: 10px; padding: 10px; background-color: #f0f0f0; border-radius: 4px;">

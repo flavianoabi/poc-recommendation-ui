@@ -749,8 +749,19 @@ public class ImageUploadBean implements Serializable {
      * Get web-accessible URL for an image
      */
     public String getImageUrl(String fileName) {
+        if (fileName == null || fileName.isEmpty()) {
+            return "";
+        }
+        
+        // URL encode the filename to handle special characters like &
+        String encodedFileName;
+        try {
+            encodedFileName = java.net.URLEncoder.encode(fileName, "UTF-8").replace("+", "%20");
+        } catch (java.io.UnsupportedEncodingException e) {
+            encodedFileName = fileName.replace("&", "%26").replace(" ", "%20");
+        }
         String contextPath = FacesContext.getCurrentInstance().getExternalContext().getRequestContextPath();
-        String url = contextPath + "/uploads/" + fileName;
+        String url = contextPath + "/uploads/" + encodedFileName;
         System.out.println("Generated image URL for " + fileName + ": " + url);
         return url;
     }

@@ -90,9 +90,13 @@
         <param-value>52428800</param-value>
     </context-param>
 
-    <!-- Default Servlet for serving static resources (uploads and images) -->
+    <!-- Custom Servlet for serving uploaded images with URL-decoded filenames -->
+    <servlet>
+        <servlet-name>ImageServeServlet</servlet-name>
+        <servlet-class>org.example.servlet.ImageServeServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
-        <servlet-name>default</servlet-name>
+        <servlet-name>ImageServeServlet</servlet-name>
         <url-pattern>/uploads/*</url-pattern>
     </servlet-mapping>
     
